@@ -199,26 +199,26 @@ Turn diagnostic data into directives. Generate concrete recommendations per reje
 
 Close the optimization loop. After a merchant applies fixes and reruns, show them proof that it worked — in aggregate numbers and in individual agent reasoning.
 
-- [ ] Snapshot storefront state on every simulation run:
+- [x] Snapshot storefront state on every simulation run:
   - On simulation start, serialize the full storefront (all products + policies) as JSON and store in `SimulationRun.storefront_snapshot`
   - Link consecutive runs: set `previous_run_id` on the new run to the most recent completed run
-- [ ] Auto-trigger re-simulation after action(s) are applied:
+- [x] Auto-trigger re-simulation after action(s) are applied:
   - After one or more actions are confirmed, show a "Re-run Simulation" button (or auto-trigger)
   - New simulation runs against the updated storefront with the same config (visit count, profile weights)
-- [ ] Build the comparison engine (`src/lib/simulation/comparator.ts`):
+- [x] Build the comparison engine (`src/lib/simulation/comparator.ts`):
   - Input: current `SimulationRun` + previous `SimulationRun`
   - Compute deltas for: overall conversion rate, total rejections, estimated revenue lost
   - Compute per-cluster deltas: for each reason code, show count change and revenue impact change
   - Identify "flipped" visits: same profile + same product, different outcome — these are the proof points
-- [ ] Build the before/after comparison UI (`src/components/dashboard/BeforeAfterComparison.tsx`):
+- [x] Build the before/after comparison UI (`src/components/dashboard/BeforeAfterComparison.tsx`):
   - Summary delta bar: conversion rate change (e.g., "37% → 68% (+31pp)"), revenue recovered
   - Side-by-side or stacked cluster comparison: each reason code shows old count vs. new count with a delta badge
   - Bar chart overlay (Recharts) comparing rejection distributions before and after
-- [ ] Build the trace comparison view:
+- [x] Build the trace comparison view:
   - For "flipped" visits (reject → purchase), show both traces side by side
   - Highlight the divergence point — the step where the old trace rejected but the new trace continued to purchase
   - Link to these from the comparison summary (e.g., "18 agents changed from REJECT to PURCHASE — view examples")
-- [ ] Wire the full optimization loop end-to-end:
+- [x] Wire the full optimization loop end-to-end:
   - Dashboard shows recommendations → user applies fix → preview → confirm → storefront updates → re-simulation runs → live feed plays → new dashboard loads with before/after comparison visible
   - Ensure the comparison persists until a new unrelated simulation is started
 
