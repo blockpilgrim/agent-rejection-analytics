@@ -10,6 +10,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { ReasoningTrace } from "@/components/dashboard/ReasoningTrace";
+import type { ReasoningStep } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
 // Types matching the SSE payloads from /api/simulate
@@ -34,6 +36,7 @@ interface VisitEvent {
   outcome: "purchase" | "reject" | "error";
   reasonCode: string | null;
   reasonSummary: string | null;
+  reasoningTrace: ReasoningStep[] | null;
   error: string | null;
   runningTotals: RunningTotals;
 }
@@ -343,53 +346,82 @@ export function LiveFeed({
 // ---------------------------------------------------------------------------
 
 function VisitRow({ visit }: { visit: VisitEvent }) {
+  const [showTrace, setShowTrace] = useState(false);
   const priceFormatted = `$${(visit.productPrice / 100).toFixed(2)}`;
+  const hasTrace =
+    visit.reasoningTrace != null && visit.reasoningTrace.length > 0;
 
   return (
-    <div className="flex items-start gap-3 rounded-md border border-border p-3 animate-in fade-in slide-in-from-bottom-1 duration-300">
-      {/* Outcome badge */}
-      <div className="shrink-0 pt-0.5">
-        {visit.outcome === "purchase" ? (
-          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-            PURCHASE
-          </Badge>
-        ) : visit.outcome === "reject" ? (
-          <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-            REJECT
-          </Badge>
-        ) : (
-          <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-            ERROR
-          </Badge>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium truncate">{visit.productName}</span>
-          <span className="shrink-0 text-muted-foreground">{priceFormatted}</span>
-        </div>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{visit.profileName}</span>
-          {visit.reasonCode && (
-            <>
-              <span>--</span>
-              <span className="font-mono text-[11px]">{visit.reasonCode}</span>
-            </>
+    <div className="rounded-md border border-border animate-in fade-in slide-in-from-bottom-1 duration-300">
+      <div className="flex items-start gap-3 p-3">
+        {/* Outcome badge */}
+        <div className="shrink-0 pt-0.5">
+          {visit.outcome === "purchase" ? (
+            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+              PURCHASE
+            </Badge>
+          ) : visit.outcome === "reject" ? (
+            <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+              REJECT
+            </Badge>
+          ) : (
+            <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+              ERROR
+            </Badge>
           )}
         </div>
-        {visit.reasonSummary && (
-          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-            {visit.reasonSummary}
-          </p>
-        )}
+
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium truncate">{visit.productName}</span>
+            <span className="shrink-0 text-muted-foreground">
+              {priceFormatted}
+            </span>
+          </div>
+          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+            <span>{visit.profileName}</span>
+            {visit.reasonCode && (
+              <>
+                <span>--</span>
+                <span className="font-mono text-[11px]">
+                  {visit.reasonCode}
+                </span>
+              </>
+            )}
+          </div>
+          {visit.reasonSummary && (
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+              {visit.reasonSummary}
+            </p>
+          )}
+          {hasTrace && (
+            <button
+              onClick={() => setShowTrace(!showTrace)}
+              className="mt-1.5 text-[11px] font-medium text-primary hover:underline"
+            >
+              {showTrace ? "Hide trace" : "View trace"}
+            </button>
+          )}
+        </div>
+
+        {/* Sequence */}
+        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+          #{visit.sequenceNumber}
+        </span>
       </div>
 
-      {/* Sequence */}
-      <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-        #{visit.sequenceNumber}
-      </span>
+      {/* Reasoning trace panel */}
+      {showTrace && hasTrace && (
+        <div className="border-t border-border bg-muted/20 px-3 py-3">
+          <ReasoningTrace
+            mandate={visit.mandate}
+            steps={visit.reasoningTrace!}
+            outcome={visit.outcome}
+            reasonCode={visit.reasonCode}
+          />
+        </div>
+      )}
     </div>
   );
 }

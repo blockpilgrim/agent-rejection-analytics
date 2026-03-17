@@ -8,8 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { REASON_CODE_LABELS, type ReasonCode } from "@/lib/types";
+import { REASON_CODE_LABELS, type ReasonCode, type ReasoningStep } from "@/lib/types";
 import { RevenueTooltip } from "@/components/dashboard/RevenueTooltip";
+import { ReasoningTrace } from "@/components/dashboard/ReasoningTrace";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -38,6 +39,7 @@ interface AgentVisit {
   outcome: string;
   reasonCode: string | null;
   reasonSummary: string | null;
+  reasoningTrace: ReasoningStep[] | null;
   productPrice: number | null;
   mandate: string | null;
   sequenceNumber: number | null;
@@ -173,44 +175,85 @@ export function ClusterCard({
         {/* Expanded visit list */}
         {expanded && visits.length > 0 && (
           <div className="space-y-2 border-t border-border pt-3">
-            {visits.map((visit) => {
-              const profile = profileMap[visit.buyerProfileId];
-              return (
-                <div
-                  key={visit.id}
-                  className="flex items-start gap-3 rounded-md border border-border p-2.5 text-xs"
-                >
-                  <Badge className="shrink-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 text-[10px]">
-                    REJECT
-                  </Badge>
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {profile?.name ?? visit.buyerProfileId}
-                      </span>
-                      {visit.productPrice != null && (
-                        <span className="text-muted-foreground">
-                          ${(visit.productPrice / 100).toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                    {visit.reasonSummary && (
-                      <p className="text-muted-foreground line-clamp-2">
-                        {visit.reasonSummary}
-                      </p>
-                    )}
-                  </div>
-                  {visit.sequenceNumber != null && (
-                    <span className="shrink-0 text-muted-foreground tabular-nums">
-                      #{visit.sequenceNumber}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+            {visits.map((visit) => (
+              <ClusterVisitRow
+                key={visit.id}
+                visit={visit}
+                profileMap={profileMap}
+              />
+            ))}
           </div>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Individual visit row with trace toggle
+// ---------------------------------------------------------------------------
+
+function ClusterVisitRow({
+  visit,
+  profileMap,
+}: {
+  visit: AgentVisit;
+  profileMap: Record<string, ProfileInfo>;
+}) {
+  const [showTrace, setShowTrace] = useState(false);
+  const profile = profileMap[visit.buyerProfileId];
+  const hasTrace =
+    visit.reasoningTrace != null && visit.reasoningTrace.length > 0;
+
+  return (
+    <div className="rounded-md border border-border text-xs">
+      <div className="flex items-start gap-3 p-2.5">
+        <Badge className="shrink-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 text-[10px]">
+          REJECT
+        </Badge>
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">
+              {profile?.name ?? visit.buyerProfileId}
+            </span>
+            {visit.productPrice != null && (
+              <span className="text-muted-foreground">
+                ${(visit.productPrice / 100).toFixed(2)}
+              </span>
+            )}
+          </div>
+          {visit.reasonSummary && (
+            <p className="text-muted-foreground line-clamp-2">
+              {visit.reasonSummary}
+            </p>
+          )}
+          {hasTrace && (
+            <button
+              onClick={() => setShowTrace(!showTrace)}
+              className="mt-1 text-[11px] font-medium text-primary hover:underline"
+            >
+              {showTrace ? "Hide trace" : "View trace"}
+            </button>
+          )}
+        </div>
+        {visit.sequenceNumber != null && (
+          <span className="shrink-0 text-muted-foreground tabular-nums">
+            #{visit.sequenceNumber}
+          </span>
+        )}
+      </div>
+
+      {/* Reasoning trace panel */}
+      {showTrace && hasTrace && (
+        <div className="border-t border-border bg-muted/20 px-3 py-3">
+          <ReasoningTrace
+            mandate={visit.mandate}
+            steps={visit.reasoningTrace!}
+            outcome={visit.outcome as "purchase" | "reject" | "error"}
+            reasonCode={visit.reasonCode}
+          />
+        </div>
+      )}
+    </div>
   );
 }

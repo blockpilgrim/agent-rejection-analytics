@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { REASON_CODE_LABELS, type ReasonCode } from "@/lib/types";
+import { REASON_CODE_LABELS, type ReasonCode, type ReasoningStep } from "@/lib/types";
 import { RejectionBarChart } from "@/components/dashboard/RejectionBarChart";
 import { ClusterCard } from "@/components/dashboard/ClusterCard";
 
@@ -51,6 +51,7 @@ interface AgentVisit {
   outcome: string;
   reasonCode: string | null;
   reasonSummary: string | null;
+  reasoningTrace: ReasoningStep[] | null;
   productPrice: number | null;
   mandate: string | null;
   sequenceNumber: number | null;
