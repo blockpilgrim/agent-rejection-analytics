@@ -36,6 +36,7 @@ export function createSimulationRun(data: {
   storefrontSnapshot?: unknown;
   totalVisits: number;
   profileWeights?: Record<string, number>;
+  previousRunId?: string | null;
   status: "pending" | "running" | "completed" | "failed";
 }) {
   return getDb()
@@ -46,6 +47,7 @@ export function createSimulationRun(data: {
       storefrontSnapshot: data.storefrontSnapshot as null,
       totalVisits: data.totalVisits,
       profileWeights: data.profileWeights,
+      previousRunId: data.previousRunId ?? null,
       status: data.status,
     })
     .run();

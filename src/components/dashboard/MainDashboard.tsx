@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -37,10 +37,27 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("simulation");
   const [completedRunId, setCompletedRunId] = useState<string | null>(null);
 
+  // Re-run state: when user clicks "Re-run Simulation" from the dashboard,
+  // we pass these to SimulationConfig to auto-start with the right params
+  const [rerunConfig, setRerunConfig] = useState<{
+    previousRunId: string;
+    visitCount: number;
+  } | null>(null);
+
   function handleSimulationComplete(runId: string) {
     setCompletedRunId(runId);
     setActiveTab("dashboard");
+    // Clear re-run config after completion
+    setRerunConfig(null);
   }
+
+  const handleRerunSimulation = useCallback(
+    (previousRunId: string, visitCount: number) => {
+      setRerunConfig({ previousRunId, visitCount });
+      setActiveTab("simulation");
+    },
+    []
+  );
 
   return (
     <div className="space-y-6">
@@ -77,7 +94,10 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
       {activeTab === "simulation" && (
         <div className="space-y-8">
           {/* Simulation config */}
-          <SimulationConfig onSimulationComplete={handleSimulationComplete} />
+          <SimulationConfig
+            onSimulationComplete={handleSimulationComplete}
+            rerunConfig={rerunConfig}
+          />
 
           {/* Buyer profiles */}
           {profiles.length > 0 ? (
@@ -99,7 +119,10 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
       )}
 
       {activeTab === "dashboard" && completedRunId && (
-        <RejectionDashboard runId={completedRunId} />
+        <RejectionDashboard
+          runId={completedRunId}
+          onRerunSimulation={handleRerunSimulation}
+        />
       )}
 
       {activeTab === "dashboard" && !completedRunId && (

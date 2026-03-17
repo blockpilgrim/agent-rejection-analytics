@@ -59,9 +59,11 @@ type SimulationState = "idle" | "running" | "completed" | "error";
 
 export function LiveFeed({
   visitCount,
+  previousRunId,
   onComplete,
 }: {
   visitCount: number;
+  previousRunId?: string;
   onComplete?: (runId: string) => void;
 }) {
   const [state, setState] = useState<SimulationState>("idle");
@@ -101,6 +103,7 @@ export function LiveFeed({
         body: JSON.stringify({
           storefrontId: "sf_001",
           visitCount,
+          ...(previousRunId ? { previousRunId } : {}),
         }),
         signal: abort.signal,
       });
@@ -169,7 +172,7 @@ export function LiveFeed({
       setErrorMsg(msg);
       setState("error");
     }
-  }, [visitCount]);
+  }, [visitCount, previousRunId]);
 
   // Auto-start simulation on mount
   useEffect(() => {

@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { REASON_CODE_LABELS, type ReasonCode, type ReasoningStep } from "@/lib/types";
 import { RejectionBarChart } from "@/components/dashboard/RejectionBarChart";
 import { ClusterCard, type AppliedAction } from "@/components/dashboard/ClusterCard";
+import { BeforeAfterComparison } from "@/components/dashboard/BeforeAfterComparison";
+import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------------------
 // Types matching API responses
@@ -83,7 +85,13 @@ interface DashboardData {
 // Main component
 // ---------------------------------------------------------------------------
 
-export function RejectionDashboard({ runId }: { runId: string }) {
+export function RejectionDashboard({
+  runId,
+  onRerunSimulation,
+}: {
+  runId: string;
+  onRerunSimulation?: (previousRunId: string, visitCount: number) => void;
+}) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -290,6 +298,9 @@ export function RejectionDashboard({ runId }: { runId: string }) {
         </Card>
       </div>
 
+      {/* Before/After comparison — shown when this run has a previous run */}
+      <BeforeAfterComparison runId={runId} />
+
       {/* Recovery summary — shown when at least one action is applied */}
       {appliedCount > 0 && (
         <Card className="border-green-300 dark:border-green-800">
@@ -303,16 +314,28 @@ export function RejectionDashboard({ runId }: { runId: string }) {
                   Changes applied to your storefront
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-green-700 dark:text-green-400 tabular-nums">
-                  +${(totalRecovery / 100).toLocaleString("en-US", {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  est. revenue recovery
-                </p>
+              <div className="flex items-center gap-4">
+                {onRerunSimulation && (
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      onRerunSimulation(runId, run.totalVisits)
+                    }
+                  >
+                    Re-run Simulation
+                  </Button>
+                )}
+                <div className="text-right">
+                  <p className="text-lg font-bold text-green-700 dark:text-green-400 tabular-nums">
+                    +${(totalRecovery / 100).toLocaleString("en-US", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    est. revenue recovery
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>

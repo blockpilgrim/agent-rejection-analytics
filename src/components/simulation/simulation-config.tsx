@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -8,20 +8,42 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { LiveFeed } from "@/components/simulation/LiveFeed";
 
 const VISIT_OPTIONS = [25, 50, 100, 200] as const;
 
+interface RerunConfig {
+  previousRunId: string;
+  visitCount: number;
+}
+
 export function SimulationConfig({
   onSimulationComplete,
+  rerunConfig,
 }: {
   onSimulationComplete?: (runId: string) => void;
+  rerunConfig?: RerunConfig | null;
 }) {
   const [visitCount, setVisitCount] = useState<number>(25);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simKey, setSimKey] = useState(0); // force LiveFeed remount on new sim
+  const [previousRunId, setPreviousRunId] = useState<string | null>(null);
+  const lastRerunRef = useRef<string | null>(null);
+
+  // Auto-start when rerunConfig changes
+  useEffect(() => {
+    if (rerunConfig && rerunConfig.previousRunId !== lastRerunRef.current) {
+      lastRerunRef.current = rerunConfig.previousRunId;
+      setVisitCount(rerunConfig.visitCount);
+      setPreviousRunId(rerunConfig.previousRunId);
+      setIsSimulating(true);
+      setSimKey((k) => k + 1);
+    }
+  }, [rerunConfig]);
 
   function handleStartSimulation() {
+    setPreviousRunId(null);
     setIsSimulating(true);
     setSimKey((k) => k + 1);
   }
@@ -34,13 +56,21 @@ export function SimulationConfig({
 
   function handleReset() {
     setIsSimulating(false);
+    setPreviousRunId(null);
   }
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Run Simulation</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Run Simulation
+            {previousRunId && isSimulating && (
+              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px]">
+                Re-run (comparing against previous)
+              </Badge>
+            )}
+          </CardTitle>
           <CardDescription>
             We&rsquo;ll send {visitCount} AI shopping agents — each with
             different buyer priorities — to evaluate your store.
@@ -95,6 +125,7 @@ export function SimulationConfig({
         <LiveFeed
           key={simKey}
           visitCount={visitCount}
+          previousRunId={previousRunId ?? undefined}
           onComplete={handleComplete}
         />
       )}

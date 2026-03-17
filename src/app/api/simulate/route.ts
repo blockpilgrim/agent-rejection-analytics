@@ -6,6 +6,7 @@ import {
   createSimulationRun,
   updateSimulationRunTotals,
   insertAgentVisit,
+  getLatestCompletedSimulationRun,
 } from "@/db/queries";
 import {
   runSimulation,
@@ -19,7 +20,7 @@ import type { StorefrontContext, ProductData } from "@/lib/simulation/agent-call
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
-  let body: { storefrontId?: string; visitCount?: number };
+  let body: { storefrontId?: string; visitCount?: number; previousRunId?: string };
   try {
     body = await request.json();
   } catch {
@@ -103,18 +104,38 @@ export async function POST(request: NextRequest) {
     profileWeights[p.id] = p.weight;
   }
 
+  // Determine previous run: use explicit previousRunId if provided, else most recent completed
+  const previousRunId =
+    body.previousRunId ?? getLatestCompletedSimulationRun()?.id ?? null;
+
+  // Full storefront snapshot: includes all products + policies
+  const storefrontSnapshot = {
+    name: storefront.name,
+    shippingPolicies: storefront.shippingPolicies,
+    returnPolicy: storefront.returnPolicy,
+    sustainabilityClaims: storefront.sustainabilityClaims,
+    products: rawProducts.map((p) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: p.price,
+      description: p.description,
+      structuredSpecs: p.structuredSpecs,
+      brand: p.brand,
+      reviewScore: p.reviewScore,
+      reviewCount: p.reviewCount,
+      stockStatus: p.stockStatus,
+      dataCompletenessScore: p.dataCompletenessScore,
+    })),
+  };
+
   createSimulationRun({
     id: runId,
     storefrontId,
-    storefrontSnapshot: {
-      name: storefront.name,
-      productCount: rawProducts.length,
-      shippingPolicies: storefront.shippingPolicies,
-      returnPolicy: storefront.returnPolicy,
-      sustainabilityClaims: storefront.sustainabilityClaims,
-    },
+    storefrontSnapshot,
     totalVisits: visitCount,
     profileWeights,
+    previousRunId,
     status: "running",
   });
 
@@ -125,7 +146,7 @@ export async function POST(request: NextRequest) {
     async start(controller) {
       // Send the run ID as the first event
       controller.enqueue(
-        encoder.encode(`event: init\ndata: ${JSON.stringify({ runId, totalVisits: visitCount })}\n\n`)
+        encoder.encode(`event: init\ndata: ${JSON.stringify({ runId, totalVisits: visitCount, previousRunId })}\n\n`)
       );
 
       let purchases = 0;
