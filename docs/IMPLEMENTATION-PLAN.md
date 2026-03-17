@@ -145,7 +145,7 @@ Transform raw simulation results into the merchant's primary diagnostic view. Cl
 
 Give merchants the ability to drill into any individual agent decision and see the step-by-step evaluation chain.
 
-- [ ] Build the reasoning trace component (`src/components/dashboard/ReasoningTrace.tsx`):
+- [x] Build the reasoning trace component (`src/components/dashboard/ReasoningTrace.tsx`):
   - Expandable/collapsible panel (uses shadcn `Collapsible`) attached to each agent visit entry
   - Displays the agent's mandate at the top
   - Renders each `ReasoningStep` as a numbered step in a vertical timeline/stepper layout:
@@ -154,10 +154,10 @@ Give merchants the ability to drill into any individual agent decision and see t
     - Step outcome (what it found)
   - The decision step (final step) is visually highlighted (e.g., red border for REJECT, green for PURCHASE)
   - The specific constraint that caused rejection is called out with emphasis
-- [ ] Integrate trace expansion into two locations:
+- [x] Integrate trace expansion into two locations:
   - The live feed: each feed entry has a "View trace" expand toggle
   - The rejection dashboard: when a cluster is expanded to show individual rejections, each rejection row has a trace toggle
-- [ ] Ensure traces render in plain language (the prompt engineering in Phase 3 should produce this, but verify and adjust prompts if traces are too technical)
+- [x] Ensure traces render in plain language (the prompt engineering in Phase 3 should produce this, but verify and adjust prompts if traces are too technical)
 
 ---
 
