@@ -165,33 +165,33 @@ Give merchants the ability to drill into any individual agent decision and see t
 
 Turn diagnostic data into directives. Generate concrete recommendations per rejection cluster, and let the merchant apply fixes to the simulated storefront with one click.
 
-- [ ] Build the recommendation generator (`src/lib/simulation/recommender.ts`):
+- [x] Build the recommendation generator (`src/lib/simulation/recommender.ts`):
   - Input: `RejectionCluster` records + storefront state
   - For each cluster, use Claude Haiku (via Vercel AI SDK) to generate:
     - A specific action statement (e.g., "Add expedited shipping option with 1-day delivery to all products")
     - The estimated revenue recovery (= cluster's revenue impact, since fixing it would recover those rejections)
   - Alternatively: use a deterministic mapping for MVP (reason_code → hardcoded recommendation template) to avoid an extra LLM call per cluster. Fall back to Haiku only for edge cases or nuanced recommendations.
   - Persist recommendations as JSON on each `RejectionCluster` record
-- [ ] Build the recommendation display within each cluster card on the dashboard:
+- [x] Build the recommendation display within each cluster card on the dashboard:
   - Action statement in bold
   - Estimated recovery figure
   - "Apply Fix" button
-- [ ] Build the action preview modal (`src/components/actions/ActionPreview.tsx`):
+- [x] Build the action preview modal (`src/components/actions/ActionPreview.tsx`):
   - Shows before → after diff of what will change in the storefront (e.g., shipping policies, product fields)
   - "Confirm" and "Cancel" buttons
-- [ ] Build the storefront mutation API (`src/app/api/storefront/route.ts`):
+- [x] Build the storefront mutation API (`src/app/api/storefront/route.ts`):
   - PATCH handler: accepts an action type and parameters, applies the change to the storefront/product records
   - Creates a `StorefrontAction` record tracking what changed
   - Returns the updated storefront state
-- [ ] Implement action types (one handler per type):
+- [x] Implement action types (one handler per type):
   - `add_expedited_shipping` — adds expedited option to storefront shipping policies
   - `structure_return_policy` — converts free-text return policy to structured fields
   - `add_sustainability_certs` — adds verified sustainability claims
   - `enrich_product_specs` — fills in missing structured specs for affected products
   - `reduce_price` — adjusts price for products above budget thresholds
   - `add_stock_status` — marks uncertain-stock products as in-stock
-- [ ] Implement undo: each action stores a `change_preview` with the before state; an "Undo" button on applied actions calls a revert endpoint that restores the before state
-- [ ] Update the dashboard to show applied actions with a visual indicator (e.g., checkmark, dimmed "Applied" state) and the undo option
+- [x] Implement undo: each action stores a `change_preview` with the before state; an "Undo" button on applied actions calls a revert endpoint that restores the before state
+- [x] Update the dashboard to show applied actions with a visual indicator (e.g., checkmark, dimmed "Applied" state) and the undo option
 
 ---
 
