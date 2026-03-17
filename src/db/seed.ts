@@ -452,7 +452,17 @@ const productData: SeedProduct[] = [
 // Price-Sensitive and Speed-Obsessed are the most common buyer types.
 // ---------------------------------------------------------------------------
 
-const buyerProfileData = [
+type SeedBuyerProfile = {
+  id: string;
+  name: string;
+  primaryConstraint: string;
+  systemPrompt: string;
+  exampleMandate: string;
+  defaultWeight: number;
+  parameters: Record<string, string | number | boolean | string[] | null>;
+};
+
+const buyerProfileData: SeedBuyerProfile[] = [
   {
     id: id("bp", 1),
     name: "Price-Sensitive",

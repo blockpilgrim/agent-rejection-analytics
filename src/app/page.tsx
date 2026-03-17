@@ -5,11 +5,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { BuyerProfileCards } from "@/components/simulation/buyer-profile-cards";
+import { SimulationConfig } from "@/components/simulation/simulation-config";
+import { getAllBuyerProfiles } from "@/db/queries";
 
 export default function Home() {
+  const profiles = getAllBuyerProfiles();
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
@@ -18,6 +22,7 @@ export default function Home() {
         </p>
       </div>
 
+      {/* Summary cards — placeholder until simulation data exists */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
@@ -56,21 +61,25 @@ export default function Home() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Get Started</CardTitle>
-          <CardDescription>
-            Simulate AI shopping agent visits to your storefront and discover why
-            agents are rejecting your products.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button disabled>Simulate 100 Agent Visits</Button>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Set up your storefront and buyer profiles first.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Simulation config */}
+      <SimulationConfig />
+
+      {/* Buyer profiles */}
+      {profiles.length > 0 ? (
+        <BuyerProfileCards profiles={profiles} />
+      ) : (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">
+              No buyer profiles found. Run{" "}
+              <code className="rounded bg-muted px-1 py-0.5 text-xs font-mono">
+                npm run db:seed
+              </code>{" "}
+              to set up the demo data.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
