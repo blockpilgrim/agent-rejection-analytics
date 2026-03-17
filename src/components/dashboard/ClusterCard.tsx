@@ -8,9 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { REASON_CODE_LABELS, type ReasonCode, type ReasoningStep } from "@/lib/types";
 import { RevenueTooltip } from "@/components/dashboard/RevenueTooltip";
 import { ReasoningTrace } from "@/components/dashboard/ReasoningTrace";
+import { ActionPreview } from "@/components/actions/ActionPreview";
+import { getActionType } from "@/lib/simulation/recommender";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,11 +53,17 @@ interface ProfileInfo {
   primaryConstraint: string;
 }
 
+export interface AppliedAction {
+  actionId: string;
+  clusterId: string;
+}
+
 // ---------------------------------------------------------------------------
 // Severity colors
 // ---------------------------------------------------------------------------
 
-function getSeverityColor(rank: number | null): string {
+function getSeverityColor(rank: number | null, applied: boolean): string {
+  if (applied) return "border-green-300 dark:border-green-800";
   if (rank === 1) return "border-red-300 dark:border-red-800";
   if (rank === 2) return "border-orange-300 dark:border-orange-800";
   if (rank === 3) return "border-yellow-300 dark:border-yellow-800";
@@ -69,13 +78,24 @@ export function ClusterCard({
   cluster,
   visits,
   profileMap,
+  storefrontId,
+  appliedAction,
+  onActionApplied,
+  onActionUndone,
 }: {
   cluster: RejectionCluster;
   visits: AgentVisit[];
   profileMap: Record<string, ProfileInfo>;
+  storefrontId: string;
+  appliedAction: AppliedAction | null;
+  onActionApplied: (clusterId: string, actionId: string) => void;
+  onActionUndone: (clusterId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [undoing, setUndoing] = useState(false);
+  const [undoError, setUndoError] = useState<string | null>(null);
 
+  const isApplied = appliedAction != null;
   const label =
     REASON_CODE_LABELS[cluster.reasonCode as ReasonCode] ?? cluster.reasonCode;
   const revenueImpact = cluster.estimatedRevenueImpact ?? 0;
@@ -83,9 +103,50 @@ export function ClusterCard({
     cluster.count > 0 ? Math.round(revenueImpact / cluster.count) : 0;
   const profileIds = cluster.affectedProfileIds ?? [];
   const productIds = cluster.affectedProductIds ?? [];
+  const actionType = getActionType(cluster.reasonCode);
+
+  function handleApplied(actionId: string) {
+    onActionApplied(cluster.id, actionId);
+  }
+
+  async function handleUndo() {
+    if (!appliedAction) return;
+    setUndoing(true);
+    setUndoError(null);
+
+    try {
+      const res = await fetch("/api/storefront", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "undo",
+          storefrontActionId: appliedAction.actionId,
+          storefrontId,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Failed to undo: ${res.status}`);
+      }
+
+      onActionUndone(cluster.id);
+    } catch (err: unknown) {
+      setUndoError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setUndoing(false);
+    }
+  }
+
+  const recoveryFmt = cluster.recommendation
+    ? `$${(cluster.recommendation.estimatedRecovery / 100).toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })}`
+    : null;
 
   return (
-    <Card className={`transition-colors ${getSeverityColor(cluster.rank)}`}>
+    <Card className={`transition-colors ${getSeverityColor(cluster.rank, isApplied)}`}>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -96,6 +157,11 @@ export function ClusterCard({
                 </span>
               )}
               <CardTitle className="text-sm font-semibold">{label}</CardTitle>
+              {isApplied && (
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px]">
+                  Fix Applied
+                </Badge>
+              )}
             </div>
             <p className="mt-0.5 text-xs font-mono text-muted-foreground">
               {cluster.reasonCode}
@@ -108,7 +174,7 @@ export function ClusterCard({
               avgPrice={avgPrice}
               totalImpact={revenueImpact}
             >
-              <p className="text-lg font-bold tabular-nums cursor-help">
+              <p className={`text-lg font-bold tabular-nums cursor-help ${isApplied ? "text-muted-foreground line-through" : ""}`}>
                 ${(revenueImpact / 100).toLocaleString("en-US", {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
@@ -150,15 +216,57 @@ export function ClusterCard({
           </div>
         )}
 
-        {/* Recommendation */}
+        {/* Recommendation + Action */}
         {cluster.recommendation && (
-          <div className="rounded-md bg-muted/50 px-3 py-2">
-            <p className="text-xs font-medium">
+          <div className={`rounded-md px-3 py-2 ${isApplied ? "bg-green-50 dark:bg-green-950/20" : "bg-muted/50"}`}>
+            <p className="text-xs font-semibold">
               {cluster.recommendation.action}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {cluster.recommendation.description}
             </p>
+            {recoveryFmt && (
+              <p className="mt-1 text-xs text-green-700 dark:text-green-400">
+                Est. recovery: <span className="font-bold">{recoveryFmt}</span>
+              </p>
+            )}
+
+            {/* Action buttons */}
+            <div className="mt-2 flex items-center gap-2">
+              {!isApplied ? (
+                <ActionPreview
+                  actionType={actionType}
+                  actionLabel={cluster.recommendation.action}
+                  description={cluster.recommendation.description}
+                  estimatedRecovery={cluster.recommendation.estimatedRecovery}
+                  clusterId={cluster.id}
+                  simulationRunId={cluster.simulationRunId}
+                  storefrontId={storefrontId}
+                  onApplied={handleApplied}
+                />
+              ) : (
+                <>
+                  <span className="text-xs text-green-700 dark:text-green-400 font-medium">
+                    Applied
+                  </span>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={handleUndo}
+                    disabled={undoing}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    {undoing ? "Undoing..." : "Undo"}
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {undoError && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {undoError}
+              </p>
+            )}
           </div>
         )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { REASON_CODE_LABELS, type ReasonCode, type ReasoningStep } from "@/lib/types";
 import { RejectionBarChart } from "@/components/dashboard/RejectionBarChart";
-import { ClusterCard } from "@/components/dashboard/ClusterCard";
+import { ClusterCard, type AppliedAction } from "@/components/dashboard/ClusterCard";
 
 // ---------------------------------------------------------------------------
 // Types matching API responses
@@ -19,6 +19,7 @@ import { ClusterCard } from "@/components/dashboard/ClusterCard";
 
 interface SimulationRun {
   id: string;
+  storefrontId: string;
   totalVisits: number;
   totalPurchases: number;
   totalRejections: number;
@@ -62,6 +63,15 @@ interface ProfileInfo {
   primaryConstraint: string;
 }
 
+interface StorefrontAction {
+  id: string;
+  simulationRunId: string;
+  recommendationSource: string | null;
+  actionType: string;
+  applied: boolean;
+  reverted: boolean;
+}
+
 interface DashboardData {
   run: SimulationRun;
   clusters: RejectionCluster[];
@@ -77,6 +87,11 @@ export function RejectionDashboard({ runId }: { runId: string }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Track applied actions: clusterId -> AppliedAction
+  const [appliedActions, setAppliedActions] = useState<
+    Record<string, AppliedAction>
+  >({});
 
   useEffect(() => {
     let cancelled = false;
@@ -107,6 +122,24 @@ export function RejectionDashboard({ runId }: { runId: string }) {
 
         const dashData: DashboardData = await dashRes.json();
 
+        // Also load existing storefront actions to restore applied state
+        const actionsRes = await fetch(`/api/storefront?runId=${encodeURIComponent(runId)}`);
+        if (actionsRes.ok) {
+          const actionsData: { actions: StorefrontAction[] } = await actionsRes.json();
+          const restored: Record<string, AppliedAction> = {};
+          for (const sa of actionsData.actions) {
+            if (sa.applied && !sa.reverted && sa.recommendationSource) {
+              restored[sa.recommendationSource] = {
+                actionId: sa.id,
+                clusterId: sa.recommendationSource,
+              };
+            }
+          }
+          if (!cancelled) {
+            setAppliedActions(restored);
+          }
+        }
+
         if (!cancelled) {
           setData(dashData);
         }
@@ -126,6 +159,24 @@ export function RejectionDashboard({ runId }: { runId: string }) {
       cancelled = true;
     };
   }, [runId]);
+
+  const handleActionApplied = useCallback(
+    (clusterId: string, actionId: string) => {
+      setAppliedActions((prev) => ({
+        ...prev,
+        [clusterId]: { actionId, clusterId },
+      }));
+    },
+    []
+  );
+
+  const handleActionUndone = useCallback((clusterId: string) => {
+    setAppliedActions((prev) => {
+      const next = { ...prev };
+      delete next[clusterId];
+      return next;
+    });
+  }, []);
 
   if (loading) {
     return (
@@ -162,6 +213,15 @@ export function RejectionDashboard({ runId }: { runId: string }) {
   const revenueLost = run.estimatedRevenueLost ?? 0;
   const totalCompleted = run.totalPurchases + run.totalRejections;
 
+  // Compute total recovery from applied actions
+  const appliedCount = Object.keys(appliedActions).length;
+  const totalRecovery = clusters.reduce((sum, c) => {
+    if (appliedActions[c.id] && c.recommendation) {
+      return sum + c.recommendation.estimatedRecovery;
+    }
+    return sum;
+  }, 0);
+
   // Build chart data from clusters
   const chartData = clusters.map((c) => ({
     reasonCode: c.reasonCode,
@@ -171,7 +231,7 @@ export function RejectionDashboard({ runId }: { runId: string }) {
   }));
 
   // Group visits by reason code for cluster drill-down
-  const visitsByReasonCode = new Map<string, AgentVisit[]>();
+  const visitsByReasonCode = new Map<string, typeof visits>();
   for (const visit of visits) {
     if (visit.outcome === "reject" && visit.reasonCode) {
       const list = visitsByReasonCode.get(visit.reasonCode) ?? [];
@@ -230,6 +290,35 @@ export function RejectionDashboard({ runId }: { runId: string }) {
         </Card>
       </div>
 
+      {/* Recovery summary — shown when at least one action is applied */}
+      {appliedCount > 0 && (
+        <Card className="border-green-300 dark:border-green-800">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                  {appliedCount} fix{appliedCount !== 1 ? "es" : ""} applied
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Changes applied to your storefront
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold text-green-700 dark:text-green-400 tabular-nums">
+                  +${(totalRecovery / 100).toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  est. revenue recovery
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Bar chart */}
       {chartData.length > 0 && (
         <Card>
@@ -269,6 +358,10 @@ export function RejectionDashboard({ runId }: { runId: string }) {
               cluster={cluster}
               visits={visitsByReasonCode.get(cluster.reasonCode) ?? []}
               profileMap={profileMap}
+              storefrontId={run.storefrontId}
+              appliedAction={appliedActions[cluster.id] ?? null}
+              onActionApplied={handleActionApplied}
+              onActionUndone={handleActionUndone}
             />
           ))
         )}

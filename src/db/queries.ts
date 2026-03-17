@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import { getDb } from "./index";
 import {
   storefronts,
@@ -7,6 +7,7 @@ import {
   simulationRuns,
   agentVisits,
   rejectionClusters,
+  storefrontActions,
 } from "./schema";
 
 export function getStorefront(id: string) {
@@ -186,5 +187,142 @@ export function getBuyerProfile(id: string) {
     .select()
     .from(buyerProfiles)
     .where(eq(buyerProfiles.id, id))
+    .get();
+}
+
+// ---------------------------------------------------------------------------
+// Storefront Mutations
+// ---------------------------------------------------------------------------
+
+export function updateStorefrontPolicies(
+  id: string,
+  updates: {
+    shippingPolicies?: Record<string, string | undefined>;
+    returnPolicy?: {
+      windowDays?: number;
+      free?: boolean;
+      structured?: boolean;
+      rawText?: string;
+    };
+    sustainabilityClaims?: {
+      certified?: boolean;
+      claims?: string[];
+    };
+  }
+) {
+  const data: Record<string, unknown> = {
+    updatedAt: new Date().toISOString(),
+  };
+  if (updates.shippingPolicies !== undefined) {
+    data.shippingPolicies = updates.shippingPolicies;
+  }
+  if (updates.returnPolicy !== undefined) {
+    data.returnPolicy = updates.returnPolicy;
+  }
+  if (updates.sustainabilityClaims !== undefined) {
+    data.sustainabilityClaims = updates.sustainabilityClaims;
+  }
+  return getDb()
+    .update(storefronts)
+    .set(data)
+    .where(eq(storefronts.id, id))
+    .run();
+}
+
+export function updateProduct(
+  id: string,
+  updates: {
+    price?: number;
+    description?: string;
+    structuredSpecs?: Record<string, string | number | boolean | null>;
+    stockStatus?: "in_stock" | "out_of_stock" | "limited";
+    dataCompletenessScore?: number;
+  }
+) {
+  return getDb()
+    .update(products)
+    .set({
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(products.id, id))
+    .run();
+}
+
+export function getProductsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+  return getDb()
+    .select()
+    .from(products)
+    .where(inArray(products.id, ids))
+    .all();
+}
+
+// ---------------------------------------------------------------------------
+// Storefront Actions
+// ---------------------------------------------------------------------------
+
+export function createStorefrontAction(data: {
+  id: string;
+  simulationRunId: string;
+  recommendationSource: string;
+  actionType: string;
+  changePreview: {
+    before: Record<string, unknown>;
+    after: Record<string, unknown>;
+  };
+  applied: boolean;
+  appliedAt: string | null;
+}) {
+  return getDb()
+    .insert(storefrontActions)
+    .values({
+      id: data.id,
+      simulationRunId: data.simulationRunId,
+      recommendationSource: data.recommendationSource,
+      actionType: data.actionType,
+      changePreview: data.changePreview,
+      applied: data.applied,
+      appliedAt: data.appliedAt,
+    })
+    .run();
+}
+
+export function getStorefrontActionsByRun(simulationRunId: string) {
+  return getDb()
+    .select()
+    .from(storefrontActions)
+    .where(eq(storefrontActions.simulationRunId, simulationRunId))
+    .all();
+}
+
+export function getStorefrontAction(id: string) {
+  return getDb()
+    .select()
+    .from(storefrontActions)
+    .where(eq(storefrontActions.id, id))
+    .get();
+}
+
+export function updateStorefrontAction(
+  id: string,
+  updates: {
+    applied?: boolean;
+    appliedAt?: string | null;
+    reverted?: boolean;
+  }
+) {
+  return getDb()
+    .update(storefrontActions)
+    .set(updates)
+    .where(eq(storefrontActions.id, id))
+    .run();
+}
+
+export function getRejectionCluster(id: string) {
+  return getDb()
+    .select()
+    .from(rejectionClusters)
+    .where(eq(rejectionClusters.id, id))
     .get();
 }
