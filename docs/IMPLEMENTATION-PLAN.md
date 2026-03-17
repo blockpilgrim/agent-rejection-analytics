@@ -10,10 +10,10 @@ This plan breaks the MVP (features F1–F10) into eight sequenced phases. Each p
 
 Stand up the project skeleton: framework, styling, database, and app shell. Nothing user-visible beyond a layout — but everything downstream depends on this.
 
-- [ ] Initialize Next.js 15+ project with App Router (`create-next-app` with TypeScript, ESLint, Tailwind CSS, App Router, `src/` directory)
-- [ ] Install and configure shadcn/ui (init with default theme, add base components: `Button`, `Card`, `Badge`, `Tabs`, `ScrollArea`, `Collapsible`, `Skeleton`)
-- [ ] Install Drizzle ORM + `better-sqlite3` driver for local dev; configure `drizzle.config.ts`
-- [ ] Define full database schema in `src/db/schema.ts` matching the data architecture:
+- [x] Initialize Next.js 15+ project with App Router (`create-next-app` with TypeScript, ESLint, Tailwind CSS, App Router, `src/` directory)
+- [x] Install and configure shadcn/ui (init with default theme, add base components: `Button`, `Card`, `Badge`, `Tabs`, `ScrollArea`, `Collapsible`, `Skeleton`)
+- [x] Install Drizzle ORM + `better-sqlite3` driver for local dev; configure `drizzle.config.ts`
+- [x] Define full database schema in `src/db/schema.ts` matching the data architecture:
   - `storefronts` table
   - `products` table (with JSON column for `structured_specs`)
   - `buyer_profiles` table (with JSON column for `parameters`)
@@ -21,12 +21,12 @@ Stand up the project skeleton: framework, styling, database, and app shell. Noth
   - `agent_visits` table (with JSON column for `reasoning_trace`, enum for `outcome` and `reason_code`)
   - `rejection_clusters` table (with JSON columns for `affected_profile_ids`, `affected_product_ids`, `recommendation`)
   - `storefront_actions` table (with JSON column for `change_preview`)
-- [ ] Generate initial migration and verify it applies cleanly
-- [ ] Create database connection utility (`src/db/index.ts`) with a singleton pattern for the SQLite connection
-- [ ] Create app layout shell (`src/app/layout.tsx`) with a top nav bar (logo/title, minimal navigation) and a main content area
-- [ ] Set up environment variables (`.env.local.example`) for `ANTHROPIC_API_KEY` and `DATABASE_URL`
-- [ ] Install Vercel AI SDK (`ai`, `@ai-sdk/anthropic`)
-- [ ] Install Recharts
+- [x] Generate initial migration and verify it applies cleanly
+- [x] Create database connection utility (`src/db/index.ts`) with a singleton pattern for the SQLite connection
+- [x] Create app layout shell (`src/app/layout.tsx`) with a top nav bar (logo/title, minimal navigation) and a main content area
+- [x] Set up environment variables (`.env.local.example`) for `ANTHROPIC_API_KEY` and `DATABASE_URL`
+- [x] Install Vercel AI SDK (`ai`, `@ai-sdk/anthropic`)
+- [x] Install Recharts
 
 ---
 
