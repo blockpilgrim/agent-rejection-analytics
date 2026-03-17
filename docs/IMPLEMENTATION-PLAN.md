@@ -119,25 +119,25 @@ The core engine. Wire up Claude API calls, orchestrate concurrent simulations, s
 
 Transform raw simulation results into the merchant's primary diagnostic view. Cluster rejections, estimate revenue impact, rank by severity.
 
-- [ ] Build the aggregation engine (`src/lib/simulation/aggregator.ts`):
+- [x] Build the aggregation engine (`src/lib/simulation/aggregator.ts`):
   - Input: all `AgentVisit` records for a simulation run
   - Group rejections by `reason_code`
   - For each cluster: count rejections, collect unique affected profile IDs and product IDs, compute `estimated_revenue_impact` = rejection count × average price of affected products
   - Rank clusters by `estimated_revenue_impact` descending
   - Persist `RejectionCluster` records to the database
-- [ ] Compute and store simulation-level summary stats on `SimulationRun`:
+- [x] Compute and store simulation-level summary stats on `SimulationRun`:
   - `total_purchases`, `total_rejections`, `overall_conversion_rate`
   - `estimated_revenue_lost` = sum of all cluster revenue impacts
-- [ ] Build the rejection dashboard page/view (`src/components/dashboard/RejectionDashboard.tsx`):
+- [x] Build the rejection dashboard page/view (`src/components/dashboard/RejectionDashboard.tsx`):
   - Summary bar at top: overall conversion rate (e.g., "37% conversion — 63 of 100 agents rejected"), total estimated revenue lost
   - Rejection cluster list, ranked by revenue impact:
     - Each cluster card shows: reason code label (human-readable), rejection count, estimated revenue impact, affected buyer profiles (as badges), affected product count
   - Clicking a cluster expands to show the individual rejections within it (list of agent visits in that cluster with profile, product, and reason summary)
-- [ ] Build a bar chart (Recharts) showing rejection counts by reason code
-- [ ] Build the revenue impact tooltip/explainer: on hover/click, show the calculation formula ("38 rejections × $479 avg product price = $18,202")
-- [ ] Wire the simulation completion flow: after live feed finishes → auto-transition to the rejection dashboard
-- [ ] Create a top-level page layout with tabs or navigation between: Storefront View | Simulation Feed | Dashboard (the dashboard tab activates after a simulation completes)
-- [ ] Test: aggregation logic (clustering, revenue calculation, ranking)
+- [x] Build a bar chart (Recharts) showing rejection counts by reason code
+- [x] Build the revenue impact tooltip/explainer: on hover/click, show the calculation formula ("38 rejections × $479 avg product price = $18,202")
+- [x] Wire the simulation completion flow: after live feed finishes → auto-transition to the rejection dashboard
+- [x] Create a top-level page layout with tabs or navigation between: Storefront View | Simulation Feed | Dashboard (the dashboard tab activates after a simulation completes)
+- [x] Test: aggregation logic (clustering, revenue calculation, ranking)
 
 ---
 
