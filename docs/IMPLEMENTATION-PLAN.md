@@ -56,26 +56,26 @@ Populate the simulated merchant storefront and build the UI to browse it. This i
 
 Define the six buyer agent archetypes and build the simulation configuration UI. After this phase the user can see profiles and configure a run — but can't execute one yet.
 
-- [ ] Create 6 buyer profile seed records with full definitions:
+- [x] Create 6 buyer profile seed records with full definitions:
   - **Price-Sensitive**: budget ceiling, minimum review threshold
   - **Speed-Obsessed**: max delivery days, willingness to pay for expedited
   - **Brand-Loyal**: approved brand list, brand tier requirements
   - **Sustainability-First**: requires verified sustainability claims, rejects unverifiable
   - **Spec-Comparator**: requires structured specs for comparison fields (wattage, capacity, warranty)
   - **Return-Conscious**: minimum return window, requires free returns, requires machine-readable policy
-- [ ] Write the system prompt template for each profile (`src/lib/prompts/`). Each prompt must:
+- [x] Write the system prompt template for each profile (`src/lib/prompts/`). Each prompt must:
   - Define the agent's persona and evaluation methodology
   - Specify the structured output schema (outcome, reason_code, reason_summary, reasoning_trace)
   - Include 1–2 few-shot examples of a purchase and a rejection
   - Reference the rejection reason taxonomy (10 codes from PRODUCT.md)
-- [ ] Define the TypeScript types for simulation output (`src/lib/types.ts`):
+- [x] Define the TypeScript types for simulation output (`src/lib/types.ts`):
   - `AgentDecision` (outcome, reason_code, reason_summary, reasoning_trace)
   - `ReasoningStep` (step number, action, data_evaluated, outcome)
   - `ReasonCode` enum matching the 10-code taxonomy
-- [ ] Build buyer profiles display panel (visible on the main page or in a sidebar/tab):
+- [x] Build buyer profiles display panel (visible on the main page or in a sidebar/tab):
   - Card per profile showing name, primary constraint, and example mandate
   - Default weight allocation displayed (e.g., pie chart or labeled percentages)
-- [ ] Build simulation config controls:
+- [x] Build simulation config controls:
   - Visit count selector (default 100, options: 25, 50, 100, 200)
   - "Simulate N Agent Visits" trigger button (disabled until Phase 4 wires it up)
   - Brief explainer text: "We'll send N AI shopping agents — each with different buyer priorities — to evaluate your store."
