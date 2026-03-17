@@ -40,12 +40,15 @@ export default function RootLayout({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="h-5 w-5"
+                className="h-5 w-5 text-primary"
               >
-                <path d="M3 3v18h18" />
-                <path d="m19 9-5 5-4-4-3 3" />
+                <rect x="3" y="11" width="18" height="10" rx="2" />
+                <circle cx="12" cy="5" r="2" />
+                <path d="M12 7v4" />
+                <line x1="8" y1="16" x2="8" y2="16" />
+                <line x1="16" y1="16" x2="16" y2="16" />
               </svg>
-              <span>Agent Rejection Analytics</span>
+              <span className="text-primary font-bold">Agent Rejection Analytics</span>
             </Link>
 
             <nav className="flex items-center gap-4 text-sm">
@@ -60,12 +63,6 @@ export default function RootLayout({
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
                 Storefront
-              </Link>
-              <Link
-                href="/simulations"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Simulations
               </Link>
             </nav>
           </div>

@@ -14,6 +14,8 @@ import { RejectionBarChart } from "@/components/dashboard/RejectionBarChart";
 import { ClusterCard, type AppliedAction } from "@/components/dashboard/ClusterCard";
 import { BeforeAfterComparison } from "@/components/dashboard/BeforeAfterComparison";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, XCircle, TrendingDown } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types matching API responses
@@ -188,14 +190,43 @@ export function RejectionDashboard({
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-8 w-20 mt-1" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-3 w-36" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground animate-pulse">
-              Analyzing simulation results...
-            </p>
+          <CardHeader>
+            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-3 w-64 mt-1" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-32 w-full" />
           </CardContent>
         </Card>
+        <div className="space-y-3">
+          <Skeleton className="h-5 w-40" />
+          {[0, 1, 2].map((i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-24 mt-1" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-3 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -254,8 +285,11 @@ export function RejectionDashboard({
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Conversion Rate</CardDescription>
-            <CardTitle className="text-2xl">{conversionPct}%</CardTitle>
+            <CardDescription className="flex items-center gap-1.5">
+              <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+              Conversion Rate
+            </CardDescription>
+            <CardTitle className="text-2xl text-green-600 dark:text-green-400">{conversionPct}%</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
@@ -266,7 +300,10 @@ export function RejectionDashboard({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Rejections</CardDescription>
+            <CardDescription className="flex items-center gap-1.5">
+              <XCircle className="h-3.5 w-3.5 text-red-500" />
+              Total Rejections
+            </CardDescription>
             <CardTitle className="text-2xl text-red-600 dark:text-red-400">
               {run.totalRejections}
             </CardTitle>
@@ -282,8 +319,11 @@ export function RejectionDashboard({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Estimated Revenue Lost</CardDescription>
-            <CardTitle className="text-2xl">
+            <CardDescription className="flex items-center gap-1.5">
+              <TrendingDown className="h-3.5 w-3.5 text-amber-500" />
+              Estimated Revenue Lost
+            </CardDescription>
+            <CardTitle className="text-2xl text-amber-600 dark:text-amber-400">
               ${(revenueLost / 100).toLocaleString("en-US", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,

@@ -62,12 +62,21 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Understand why AI shopping agents reject your store and what to do
-          about it.
-        </p>
+      <div className="rounded-xl border border-border bg-gradient-to-br from-primary/5 via-background to-primary/3 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+                Agentic Commerce
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">Agent Rejection Analytics</h1>
+            <p className="max-w-2xl text-muted-foreground">
+              AI shopping agents are evaluating your store right now — but traditional analytics can&rsquo;t see them. Simulate their visits, diagnose why they reject your store, apply fixes, and verify the impact.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Tab navigation */}
@@ -93,13 +102,7 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
       {/* Tab content */}
       {activeTab === "simulation" && (
         <div className="space-y-8">
-          {/* Simulation config */}
-          <SimulationConfig
-            onSimulationComplete={handleSimulationComplete}
-            rerunConfig={rerunConfig}
-          />
-
-          {/* Buyer profiles */}
+          {/* Buyer profiles — context before CTA */}
           {profiles.length > 0 ? (
             <BuyerProfileCards profiles={profiles} />
           ) : (
@@ -115,6 +118,12 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
               </CardContent>
             </Card>
           )}
+
+          {/* Simulation config */}
+          <SimulationConfig
+            onSimulationComplete={handleSimulationComplete}
+            rerunConfig={rerunConfig}
+          />
         </div>
       )}
 
@@ -126,10 +135,24 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
       )}
 
       {activeTab === "dashboard" && !completedRunId && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              Run a simulation first to see the rejection dashboard.
+        <Card className="border-dashed">
+          <CardContent className="py-16 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-6 w-6 text-muted-foreground">
+                <path d="M3 3v18h18" />
+                <path d="m19 9-5 5-4-4-3 3" />
+              </svg>
+            </div>
+            <p className="font-medium text-foreground">No simulation data yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Run a simulation from the{" "}
+              <button
+                onClick={() => setActiveTab("simulation")}
+                className="text-primary hover:underline font-medium"
+              >
+                Simulation Feed
+              </button>{" "}
+              tab to see rejection analytics.
             </p>
           </CardContent>
         </Card>
@@ -159,7 +182,7 @@ function TabButton({
       disabled={disabled}
       className={`inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
         active
-          ? "bg-background text-foreground shadow-sm"
+          ? "bg-background text-primary shadow-sm font-semibold"
           : "text-foreground/60 hover:text-foreground"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
