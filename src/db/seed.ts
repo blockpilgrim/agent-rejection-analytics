@@ -1,7 +1,15 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
-import { storefronts, products } from "./schema";
+import { storefronts, products, buyerProfiles } from "./schema";
+import {
+  PRICE_SENSITIVE_PROMPT,
+  SPEED_OBSESSED_PROMPT,
+  BRAND_LOYAL_PROMPT,
+  SUSTAINABILITY_FIRST_PROMPT,
+  SPEC_COMPARATOR_PROMPT,
+  RETURN_CONSCIOUS_PROMPT,
+} from "../lib/prompts";
 
 const DATABASE_URL = process.env.DATABASE_URL ?? "./data/local.db";
 
@@ -439,6 +447,105 @@ const productData: SeedProduct[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Buyer Profiles — 6 archetypes with realistic weight distribution
+// Weights: sum to ~6.0 (each profile's weight is its relative proportion).
+// Price-Sensitive and Speed-Obsessed are the most common buyer types.
+// ---------------------------------------------------------------------------
+
+const buyerProfileData = [
+  {
+    id: id("bp", 1),
+    name: "Price-Sensitive",
+    primaryConstraint: "Lowest cost within requirements",
+    systemPrompt: PRICE_SENSITIVE_PROMPT,
+    exampleMandate:
+      "Find a stand mixer under $300 with at least 4-star reviews",
+    defaultWeight: 1.4,
+    parameters: {
+      budgetCeiling: 30000, // in cents ($300)
+      minReviewScore: 4.0,
+      minReviewCount: 5,
+    },
+  },
+  {
+    id: id("bp", 2),
+    name: "Speed-Obsessed",
+    primaryConstraint: "Fastest delivery",
+    systemPrompt: SPEED_OBSESSED_PROMPT,
+    exampleMandate:
+      "Espresso machine under $500, delivered within 2 days",
+    defaultWeight: 1.2,
+    parameters: {
+      maxDeliveryDays: 2,
+      willingToPayExpedited: true,
+      budgetCeiling: 50000, // in cents ($500)
+    },
+  },
+  {
+    id: id("bp", 3),
+    name: "Brand-Loyal",
+    primaryConstraint: "Specific brand or brand tier",
+    systemPrompt: BRAND_LOYAL_PROMPT,
+    exampleMandate: "Only consider KitchenAid or Breville products",
+    defaultWeight: 0.9,
+    parameters: {
+      approvedBrands: ["KitchenAid", "Breville", "Barista Pro"],
+      brandTier: "premium",
+      budgetCeiling: 60000, // in cents ($600)
+    },
+  },
+  {
+    id: id("bp", 4),
+    name: "Sustainability-First",
+    primaryConstraint: "Verified environmental claims",
+    systemPrompt: SUSTAINABILITY_FIRST_PROMPT,
+    exampleMandate:
+      "Prefer products with certified sustainable sourcing; reject if no verifiable claims",
+    defaultWeight: 0.7,
+    parameters: {
+      requireCertified: true,
+      acceptableLabels: [
+        "Fair Trade",
+        "B Corp",
+        "FSC",
+        "USDA Organic",
+        "Energy Star",
+      ],
+      budgetCeiling: 40000, // in cents ($400)
+    },
+  },
+  {
+    id: id("bp", 5),
+    name: "Spec-Comparator",
+    primaryConstraint: "Detailed feature comparison",
+    systemPrompt: SPEC_COMPARATOR_PROMPT,
+    exampleMandate:
+      "Compare blenders by motor wattage, jar capacity, and warranty length",
+    defaultWeight: 1.0,
+    parameters: {
+      requiredSpecFields: ["wattage", "capacity", "warranty"],
+      minSpecFieldCount: 3,
+      budgetCeiling: 40000, // in cents ($400)
+    },
+  },
+  {
+    id: id("bp", 6),
+    name: "Return-Conscious",
+    primaryConstraint: "Low-risk purchase",
+    systemPrompt: RETURN_CONSCIOUS_PROMPT,
+    exampleMandate:
+      "Only buy from merchants with free 30-day returns, clearly stated",
+    defaultWeight: 0.8,
+    parameters: {
+      minReturnWindowDays: 30,
+      requireFreeReturns: true,
+      requireMachineReadablePolicy: true,
+      budgetCeiling: 40000, // in cents ($400)
+    },
+  },
+];
+
+// ---------------------------------------------------------------------------
 // Seed
 // ---------------------------------------------------------------------------
 
@@ -454,6 +561,7 @@ async function seed() {
   // Reset — delete all rows from relevant tables
   console.log("  Clearing existing data...");
   db.delete(products).run();
+  db.delete(buyerProfiles).run();
   db.delete(storefronts).run();
 
   // Insert storefront
@@ -472,10 +580,18 @@ async function seed() {
       .run();
   }
 
+  // Insert buyer profiles
+  console.log("  Inserting buyer profiles...");
+  for (const bp of buyerProfileData) {
+    db.insert(buyerProfiles).values(bp).run();
+  }
+
   sqlite.pragma("foreign_keys = ON");
   sqlite.close();
 
-  console.log(`Seeded 1 storefront, ${productData.length} products.`);
+  console.log(
+    `Seeded 1 storefront, ${productData.length} products, ${buyerProfileData.length} buyer profiles.`
+  );
   console.log("Done.");
 }
 

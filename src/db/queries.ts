@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "./index";
-import { storefronts, products } from "./schema";
+import { storefronts, products, buyerProfiles } from "./schema";
 
 export function getStorefront(id: string) {
   return getDb().select().from(storefronts).where(eq(storefronts.id, id)).get();
@@ -12,4 +12,8 @@ export function getProductsByStorefront(storefrontId: string) {
     .from(products)
     .where(eq(products.storefrontId, storefrontId))
     .all();
+}
+
+export function getAllBuyerProfiles() {
+  return getDb().select().from(buyerProfiles).all();
 }

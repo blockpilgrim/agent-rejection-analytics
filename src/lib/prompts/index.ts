@@ -1,9 +1,18 @@
-export { PRICE_SENSITIVE_PROMPT } from "./price-sensitive";
-export { SPEED_OBSESSED_PROMPT } from "./speed-obsessed";
-export { BRAND_LOYAL_PROMPT } from "./brand-loyal";
-export { SUSTAINABILITY_FIRST_PROMPT } from "./sustainability-first";
-export { SPEC_COMPARATOR_PROMPT } from "./spec-comparator";
-export { RETURN_CONSCIOUS_PROMPT } from "./return-conscious";
+import { PRICE_SENSITIVE_PROMPT } from "./price-sensitive";
+import { SPEED_OBSESSED_PROMPT } from "./speed-obsessed";
+import { BRAND_LOYAL_PROMPT } from "./brand-loyal";
+import { SUSTAINABILITY_FIRST_PROMPT } from "./sustainability-first";
+import { SPEC_COMPARATOR_PROMPT } from "./spec-comparator";
+import { RETURN_CONSCIOUS_PROMPT } from "./return-conscious";
+
+export {
+  PRICE_SENSITIVE_PROMPT,
+  SPEED_OBSESSED_PROMPT,
+  BRAND_LOYAL_PROMPT,
+  SUSTAINABILITY_FIRST_PROMPT,
+  SPEC_COMPARATOR_PROMPT,
+  RETURN_CONSCIOUS_PROMPT,
+};
 export { REASON_CODE_TAXONOMY, OUTPUT_SCHEMA } from "./shared";
 
 /** Map from buyer profile ID to system prompt. */
