@@ -12,7 +12,11 @@ import { LiveFeed } from "@/components/simulation/LiveFeed";
 
 const VISIT_OPTIONS = [25, 50, 100, 200] as const;
 
-export function SimulationConfig() {
+export function SimulationConfig({
+  onSimulationComplete,
+}: {
+  onSimulationComplete?: (runId: string) => void;
+}) {
   const [visitCount, setVisitCount] = useState<number>(25);
   const [isSimulating, setIsSimulating] = useState(false);
   const [simKey, setSimKey] = useState(0); // force LiveFeed remount on new sim
@@ -22,8 +26,10 @@ export function SimulationConfig() {
     setSimKey((k) => k + 1);
   }
 
-  function handleComplete() {
-    // Keep showing results but allow re-running
+  function handleComplete(runId: string) {
+    if (onSimulationComplete) {
+      onSimulationComplete(runId);
+    }
   }
 
   function handleReset() {

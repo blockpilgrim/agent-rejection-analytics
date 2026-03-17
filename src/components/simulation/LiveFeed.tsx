@@ -59,7 +59,7 @@ export function LiveFeed({
   onComplete,
 }: {
   visitCount: number;
-  onComplete?: () => void;
+  onComplete?: (runId: string) => void;
 }) {
   const [state, setState] = useState<SimulationState>("idle");
   const [visits, setVisits] = useState<VisitEvent[]>([]);
@@ -301,9 +301,9 @@ export function LiveFeed({
                       </p>
                     </div>
                   </div>
-                  {onComplete && (
+                  {onComplete && completion && (
                     <Button
-                      onClick={onComplete}
+                      onClick={() => onComplete(completion.runId)}
                       variant="outline"
                       className="mt-2"
                     >

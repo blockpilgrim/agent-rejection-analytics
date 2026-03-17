@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { getDb } from "./index";
 import {
   storefronts,
@@ -6,6 +6,7 @@ import {
   buyerProfiles,
   simulationRuns,
   agentVisits,
+  rejectionClusters,
 } from "./schema";
 
 export function getStorefront(id: string) {
@@ -115,4 +116,75 @@ export function insertAgentVisit(data: {
       sequenceNumber: data.sequenceNumber,
     })
     .run();
+}
+
+// ---------------------------------------------------------------------------
+// Simulation Run Queries
+// ---------------------------------------------------------------------------
+
+export function getSimulationRun(id: string) {
+  return getDb()
+    .select()
+    .from(simulationRuns)
+    .where(eq(simulationRuns.id, id))
+    .get();
+}
+
+export function getLatestCompletedSimulationRun() {
+  return getDb()
+    .select()
+    .from(simulationRuns)
+    .where(eq(simulationRuns.status, "completed"))
+    .orderBy(desc(simulationRuns.createdAt))
+    .limit(1)
+    .get();
+}
+
+// ---------------------------------------------------------------------------
+// Rejection Clusters
+// ---------------------------------------------------------------------------
+
+export function getRejectionClustersByRun(simulationRunId: string) {
+  return getDb()
+    .select()
+    .from(rejectionClusters)
+    .where(eq(rejectionClusters.simulationRunId, simulationRunId))
+    .orderBy(rejectionClusters.rank)
+    .all();
+}
+
+// ---------------------------------------------------------------------------
+// Agent Visits — additional queries
+// ---------------------------------------------------------------------------
+
+export function getAgentVisitsByRunAndReasonCode(
+  simulationRunId: string,
+  reasonCode: string
+) {
+  return getDb()
+    .select()
+    .from(agentVisits)
+    .where(eq(agentVisits.simulationRunId, simulationRunId))
+    .all()
+    .filter((v) => v.reasonCode === reasonCode);
+}
+
+export function getAgentVisitsByRun(simulationRunId: string) {
+  return getDb()
+    .select()
+    .from(agentVisits)
+    .where(eq(agentVisits.simulationRunId, simulationRunId))
+    .all();
+}
+
+export function getProduct(id: string) {
+  return getDb().select().from(products).where(eq(products.id, id)).get();
+}
+
+export function getBuyerProfile(id: string) {
+  return getDb()
+    .select()
+    .from(buyerProfiles)
+    .where(eq(buyerProfiles.id, id))
+    .get();
 }
