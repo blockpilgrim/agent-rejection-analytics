@@ -34,21 +34,21 @@ Stand up the project skeleton: framework, styling, database, and app shell. Noth
 
 Populate the simulated merchant storefront and build the UI to browse it. This is the user's entry point — they need to see the store before simulating anything.
 
-- [ ] Create seed data script (`src/db/seed.ts`) that inserts:
+- [x] Create seed data script (`src/db/seed.ts`) that inserts:
   - 1 default storefront with realistic policies (shipping: standard 3-day only, return policy as free-text blob, no structured sustainability claims)
   - 20+ products across 3+ categories (e.g., Espresso Machines, Blenders, Cookware) with varying data quality:
     - ~6 products with full structured specs, reviews, stock status
     - ~8 products with partial data (missing some specs, low review counts)
     - ~6 products with minimal data (free-text descriptions only, no structured specs)
   - Prices ranging from $30–$600 to create meaningful budget constraint variation
-- [ ] Compute and store `data_completeness_score` for each product during seeding (ratio of populated fields to total possible fields)
-- [ ] Add an npm script (`db:seed`) that resets and re-seeds the database
-- [ ] Build storefront overview page (`src/app/page.tsx` or `src/app/storefront/page.tsx`):
+- [x] Compute and store `data_completeness_score` for each product during seeding (ratio of populated fields to total possible fields)
+- [x] Add an npm script (`db:seed`) that resets and re-seeds the database
+- [x] Build storefront overview page (`src/app/page.tsx` or `src/app/storefront/page.tsx`):
   - Storefront header showing store name, shipping policy summary, return policy summary
   - Product catalog displayed as a grid of cards
   - Each product card shows: name, category, price, review score, stock status, and a data-completeness indicator (e.g., colored dot or progress bar)
-- [ ] Build product detail view (expandable card or modal) showing all fields including raw structured specs and description text, so the user can see exactly what data agents will evaluate
-- [ ] Add visual indicators for data quality issues (e.g., "No structured specs", "Return policy not machine-readable") — these foreshadow what agents will flag
+- [x] Build product detail view (expandable card or modal) showing all fields including raw structured specs and description text, so the user can see exactly what data agents will evaluate
+- [x] Add visual indicators for data quality issues (e.g., "No structured specs", "Return policy not machine-readable") — these foreshadow what agents will flag
 
 ---
 
