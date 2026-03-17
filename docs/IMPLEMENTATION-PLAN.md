@@ -86,32 +86,32 @@ Define the six buyer agent archetypes and build the simulation configuration UI.
 
 The core engine. Wire up Claude API calls, orchestrate concurrent simulations, stream results to the client in real time. After this phase, the user can run a simulation and watch results appear live.
 
-- [ ] Build the simulation orchestrator (`src/lib/simulation/orchestrator.ts`):
+- [x] Build the simulation orchestrator (`src/lib/simulation/orchestrator.ts`):
   - Accept config: storefront ID, visit count, profile weights
   - Generate the visit queue: pair buyer profiles with products based on weighted distribution (profile weights determine how many visits each profile gets; product selection is randomized or round-robin within each profile's visits)
   - Return an async iterator/generator that yields `AgentVisit` results as they complete
-- [ ] Implement the Claude API caller (`src/lib/simulation/agent-caller.ts`):
+- [x] Implement the Claude API caller (`src/lib/simulation/agent-caller.ts`):
   - Use Vercel AI SDK's `generateObject()` with Anthropic provider
   - Three-layer prompt: system (profile persona) + user (product data + storefront policies + specific mandate) + structured output schema via Zod
   - Parse and validate the structured response into `AgentDecision`
   - Handle API errors gracefully (retry once, then mark visit as failed)
-- [ ] Implement concurrent execution with semaphore pattern:
+- [x] Implement concurrent execution with semaphore pattern:
   - Configurable concurrency limit (default: 8)
   - Process visits in concurrent batches, yielding each result as it completes
   - Respect rate limits — back off on 429 responses
-- [ ] Build the simulation API route (`src/app/api/simulate/route.ts`):
+- [x] Build the simulation API route (`src/app/api/simulate/route.ts`):
   - POST handler: accepts config, creates a `SimulationRun` record (status: running), starts orchestration
   - Streams results via SSE (use `ReadableStream` with `TextEncoder` for SSE format)
   - Each SSE event contains a serialized `AgentVisit` result
   - On completion: update `SimulationRun` with totals, emit a `complete` event
-- [ ] Persist each `AgentVisit` to the database as it completes (within the orchestrator loop, before yielding to the stream)
-- [ ] Build the live simulation feed UI (`src/components/simulation/LiveFeed.tsx`):
+- [x] Persist each `AgentVisit` to the database as it completes (within the orchestrator loop, before yielding to the stream)
+- [x] Build the live simulation feed UI (`src/components/simulation/LiveFeed.tsx`):
   - Connect to SSE endpoint on simulation trigger
   - Display results as they arrive: each entry is a row/card showing buyer profile name, product name, outcome badge (green PURCHASE / red REJECT), and one-line reason summary
   - Animate new entries appearing (subtle fade-in or slide-in)
   - Running tally bar at the top: "Purchases: X | Rejections: Y | Total: Z/N" with a progress indicator
-- [ ] Handle simulation completion: transition from live feed to results view (initially just a completion message — the dashboard comes in Phase 5)
-- [ ] Test: orchestrator visit queue distribution logic, structured output Zod schema validation, SSE event formatting
+- [x] Handle simulation completion: transition from live feed to results view (initially just a completion message — the dashboard comes in Phase 5)
+- [x] Test: orchestrator visit queue distribution logic, structured output Zod schema validation, SSE event formatting
 
 ---
 

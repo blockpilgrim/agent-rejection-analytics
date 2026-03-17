@@ -168,6 +168,14 @@ export function LiveFeed({
     }
   }, [visitCount]);
 
+  // Auto-start simulation on mount
+  useEffect(() => {
+    if (state === "idle") {
+      startSimulation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Auto-scroll to bottom as new visits arrive
   useEffect(() => {
     if (feedRef.current) {
@@ -189,13 +197,6 @@ export function LiveFeed({
 
   return (
     <div className="space-y-4">
-      {/* Start / Status bar */}
-      {state === "idle" && (
-        <Button onClick={startSimulation} size="lg" className="w-full sm:w-auto">
-          Simulate {visitCount} Agent Visits
-        </Button>
-      )}
-
       {state !== "idle" && (
         <>
           {/* Running tally */}
