@@ -224,6 +224,23 @@ Close the optimization loop. After a merchant applies fixes and reruns, show the
 
 ---
 
+## Phase 9: UX/UI Polish for Demo Submission
+
+Visual and narrative polish to make the app land well as a job application concept demo.
+
+- [x] Change primary color from achromatic gray to indigo (`oklch(0.45 0.22 265)`) across light/dark modes
+- [x] Diversify chart palette beyond single blue band to indigo / red-orange / green / amber / violet
+- [x] Add hero context banner: gradient card with "Agentic Commerce" pill, updated headline and description copy
+- [x] Reorder Simulation tab: buyer profiles (context) above simulation config (CTA)
+- [x] Add TrendingUp / XCircle / TrendingDown icons to the 3 metric summary cards with semantic colors
+- [x] Replace single-line loading state with skeleton layout matching dashboard structure
+- [x] Upgrade empty Rejection Dashboard state: dashed card, icon, inline tab link
+- [x] Active tab button uses primary color; tab font-weight clarified
+- [x] Remove broken `/simulations` nav link (page doesn't exist)
+- [x] Replace generic chart SVG header icon with bot/agent icon; brand name rendered in primary color
+
+---
+
 ## Dependency Graph
 
 ```
