@@ -19,11 +19,11 @@ interface ChartDataPoint {
 }
 
 const BAR_COLORS = [
-  "var(--color-chart-1, #e11d48)",
-  "var(--color-chart-2, #f97316)",
-  "var(--color-chart-3, #eab308)",
-  "var(--color-chart-4, #22c55e)",
-  "var(--color-chart-5, #3b82f6)",
+  "var(--color-chart-1, #0ea5e9)",
+  "var(--color-chart-2, #f59e0b)",
+  "var(--color-chart-3, #f43f5e)",
+  "var(--color-chart-4, #10b981)",
+  "var(--color-chart-5, #8b5cf6)",
 ];
 
 function getBarColor(index: number): string {
@@ -48,22 +48,22 @@ function CustomTooltip({
   const avgPrice = data.count > 0 ? data.revenueImpact / data.count : 0;
 
   return (
-    <div className="rounded-lg border border-border bg-background px-3 py-2 shadow-md">
-      <p className="text-sm font-medium">{data.label}</p>
-      <p className="text-xs text-muted-foreground font-mono">{data.reasonCode}</p>
-      <div className="mt-1.5 space-y-0.5 text-xs">
+    <div className="rounded-md border border-border bg-card px-3 py-2 shadow-lg">
+      <p className="text-xs font-medium">{data.label}</p>
+      <p className="text-[10px] text-muted-foreground font-mono">{data.reasonCode}</p>
+      <div className="mt-1.5 space-y-0.5 text-[11px]">
         <p>
           <span className="text-muted-foreground">Rejections: </span>
-          <span className="font-medium">{data.count}</span>
+          <span className="font-medium font-mono">{data.count}</span>
         </p>
         <p>
           <span className="text-muted-foreground">Revenue impact: </span>
-          <span className="font-medium">
+          <span className="font-medium font-mono">
             ${(data.revenueImpact / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </span>
         </p>
-        <p className="text-[11px] text-muted-foreground italic">
-          {data.count} rejections x ${(avgPrice / 100).toFixed(0)} avg price = $
+        <p className="text-[10px] text-muted-foreground">
+          {data.count} x ${(avgPrice / 100).toFixed(0)} avg = $
           {(data.revenueImpact / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
         </p>
       </div>
@@ -85,22 +85,20 @@ export function RejectionBarChart({ data }: { data: ChartDataPoint[] }) {
           data={data}
           margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
         >
-          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border, #333)" strokeOpacity={0.5} />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
             angle={-35}
             textAnchor="end"
             height={60}
-            className="fill-muted-foreground"
           />
           <YAxis
-            tick={{ fontSize: 11 }}
-            className="fill-muted-foreground"
+            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
             allowDecimals={false}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={48}>
+          <Bar dataKey="count" radius={[3, 3, 0, 0]} maxBarSize={44}>
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={getBarColor(index)} />
             ))}

@@ -60,27 +60,26 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Page header */}
-      <div className="rounded-xl border border-border bg-gradient-to-br from-primary/5 via-background to-primary/3 p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-                Agentic Commerce
-              </span>
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight">Agent Rejection Analytics</h1>
-            <p className="max-w-2xl text-muted-foreground">
-              AI shopping agents are evaluating your store right now — but traditional analytics can&rsquo;t see them. Simulate their visits, diagnose why they reject your store, apply fixes, and verify the impact.
+          <div className="space-y-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/20">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+              Agentic Commerce
+            </span>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Agent Rejection Analytics</h1>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              AI shopping agents are evaluating your store right now — but traditional analytics can&rsquo;t see them.
+              Simulate their visits, diagnose why they reject your store, apply fixes, and verify the impact.
             </p>
           </div>
         </div>
       </div>
 
       {/* Tab navigation */}
-      <div className="flex items-center gap-1 rounded-lg bg-muted p-[3px] w-fit">
+      <div className="flex items-center gap-0.5 rounded-lg bg-muted/60 p-[3px] w-fit border border-border/50">
         <TabButton
           active={activeTab === "simulation"}
           onClick={() => setActiveTab("simulation")}
@@ -94,14 +93,14 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
         >
           Rejection Dashboard
           {completedRunId && (
-            <span className="ml-1.5 inline-flex h-2 w-2 rounded-full bg-green-500" />
+            <span className="ml-1.5 inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
           )}
         </TabButton>
       </div>
 
       {/* Tab content */}
       {activeTab === "simulation" && (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Buyer profiles — context before CTA */}
           {profiles.length > 0 ? (
             <BuyerProfileCards profiles={profiles} />
@@ -180,7 +179,7 @@ function TabButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+      className={`inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
         active
           ? "bg-background text-primary shadow-sm font-semibold"
           : "text-foreground/60 hover:text-foreground"

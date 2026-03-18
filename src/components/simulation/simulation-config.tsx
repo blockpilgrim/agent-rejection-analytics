@@ -60,32 +60,32 @@ export function SimulationConfig({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2">
             Run Simulation
             {previousRunId && isSimulating && (
-              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px]">
+              <Badge className="bg-primary/15 text-primary text-[10px] border-0">
                 Re-run (comparing against previous)
               </Badge>
             )}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs">
             We&rsquo;ll send {visitCount} AI shopping agents — each with
             different buyer priorities — to evaluate your store.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Visit Count</label>
-            <div className="flex gap-2">
+        <CardContent className="space-y-3">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium">Visit Count</label>
+            <div className="flex gap-1.5">
               {VISIT_OPTIONS.map((n) => (
                 <button
                   key={n}
                   onClick={() => setVisitCount(n)}
                   disabled={isSimulating}
-                  className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-md border px-3 py-1.5 text-xs font-medium font-mono transition-colors ${
                     visitCount === n
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border bg-background text-foreground hover:bg-muted"
@@ -95,7 +95,7 @@ export function SimulationConfig({
                 </button>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               More visits produce more statistically significant results but take
               longer to simulate.
             </p>
@@ -104,8 +104,9 @@ export function SimulationConfig({
           {!isSimulating && (
             <button
               onClick={handleStartSimulation}
-              className="inline-flex shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:translate-y-px"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               Simulate {visitCount} Agent Visits
             </button>
           )}
@@ -113,7 +114,7 @@ export function SimulationConfig({
           {isSimulating && (
             <button
               onClick={handleReset}
-              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-all hover:bg-muted active:translate-y-px"
+              className="inline-flex shrink-0 items-center justify-center rounded-md border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-foreground transition-all hover:bg-muted active:translate-y-px"
             >
               New Simulation
             </button>
