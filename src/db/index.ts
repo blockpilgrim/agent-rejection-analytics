@@ -15,19 +15,16 @@ let _db: ReturnType<typeof createDb> | null = null;
 function createDb() {
   const sqlite = new Database(getDbPath());
   sqlite.pragma("journal_mode = WAL");
+  sqlite.pragma("foreign_keys = OFF");
 
-  if (isVercel) {
-    // On Vercel, /tmp is ephemeral — create schema and seed on every cold start.
-    sqlite.pragma("foreign_keys = OFF");
-    ensureTables(sqlite);
-    const db = drizzle(sqlite, { schema });
-    ensureSeed(db);
-    sqlite.pragma("foreign_keys = ON");
-    return db;
-  }
+  // Always ensure schema and seed data exist. On Vercel /tmp is ephemeral so
+  // this runs on every cold start. Locally it's a no-op if already seeded.
+  ensureTables(sqlite);
+  const db = drizzle(sqlite, { schema });
+  ensureSeed(db);
 
   sqlite.pragma("foreign_keys = ON");
-  return drizzle(sqlite, { schema });
+  return db;
 }
 
 export function getDb() {
