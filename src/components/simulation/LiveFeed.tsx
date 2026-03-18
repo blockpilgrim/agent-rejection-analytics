@@ -202,43 +202,43 @@ export function LiveFeed({
       : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {state !== "idle" && (
         <>
           {/* Running tally */}
           <Card>
-            <CardContent className="pt-4 pb-4">
-              <div className="flex flex-wrap items-center gap-4 text-sm">
+            <CardContent className="pt-3 pb-3">
+              <div className="flex flex-wrap items-center gap-3 text-xs">
                 <span className="font-medium">
                   Purchases:{" "}
-                  <span className="text-green-600 dark:text-green-400">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-mono">
                     {totals.purchases}
                   </span>
                 </span>
-                <span className="text-muted-foreground">|</span>
+                <span className="text-foreground/20">|</span>
                 <span className="font-medium">
                   Rejections:{" "}
-                  <span className="text-red-600 dark:text-red-400">
+                  <span className="text-red-600 dark:text-red-400 font-mono">
                     {totals.rejections}
                   </span>
                 </span>
                 {totals.errors > 0 && (
                   <>
-                    <span className="text-muted-foreground">|</span>
+                    <span className="text-foreground/20">|</span>
                     <span className="font-medium">
                       Errors:{" "}
-                      <span className="text-yellow-600 dark:text-yellow-400">
+                      <span className="text-amber-600 dark:text-amber-400 font-mono">
                         {totals.errors}
                       </span>
                     </span>
                   </>
                 )}
-                <span className="text-muted-foreground">|</span>
-                <span className="font-medium">
-                  Total: {totals.completed}/{totals.total}
+                <span className="text-foreground/20">|</span>
+                <span className="font-medium font-mono">
+                  {totals.completed}/{totals.total}
                 </span>
               </div>
-              <div className="mt-3">
+              <div className="mt-2.5">
                 <Progress value={progressPercent} />
               </div>
             </CardContent>
@@ -246,8 +246,8 @@ export function LiveFeed({
 
           {/* Visit feed */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">
+            <CardHeader className="pb-1.5">
+              <CardTitle className="text-xs font-semibold">
                 {state === "running"
                   ? "Live Feed"
                   : state === "completed"
@@ -258,14 +258,14 @@ export function LiveFeed({
             <CardContent>
               <div
                 ref={feedRef}
-                className="max-h-[480px] space-y-2 overflow-y-auto pr-1"
+                className="max-h-[420px] space-y-1 overflow-y-auto pr-1"
               >
                 {visits.map((v) => (
                   <VisitRow key={`${v.sequenceNumber}-${v.productId}`} visit={v} />
                 ))}
 
                 {state === "running" && visits.length === 0 && (
-                  <p className="py-8 text-center text-sm text-muted-foreground animate-pulse">
+                  <p className="py-8 text-center text-xs text-muted-foreground animate-pulse">
                     Starting simulation...
                   </p>
                 )}
@@ -275,68 +275,66 @@ export function LiveFeed({
 
           {/* Completion summary */}
           {state === "completed" && completion && (
-            <Card className="border-green-200 dark:border-green-900">
-              <CardContent className="pt-4 pb-4">
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Simulation Complete</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-                    <div>
-                      <p className="text-muted-foreground">Conversion Rate</p>
-                      <p className="text-lg font-bold">
-                        {(completion.conversionRate * 100).toFixed(1)}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Purchases</p>
-                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                        {completion.purchases}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Rejections</p>
-                      <p className="text-lg font-bold text-red-600 dark:text-red-400">
-                        {completion.rejections}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">
-                        Est. Revenue Lost
-                      </p>
-                      <p className="text-lg font-bold">
-                        ${(completion.estimatedRevenueLost / 100).toFixed(2)}
-                      </p>
-                    </div>
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold">Simulation Complete</h3>
+                <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Conversion Rate</p>
+                    <p className="text-base font-bold font-mono">
+                      {(completion.conversionRate * 100).toFixed(1)}%
+                    </p>
                   </div>
-                  {onComplete && completion && (
-                    <Button
-                      onClick={() => onComplete(completion.runId)}
-                      variant="outline"
-                      className="mt-2"
-                    >
-                      View Dashboard
-                    </Button>
-                  )}
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Purchases</p>
+                    <p className="text-base font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                      {completion.purchases}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Rejections</p>
+                    <p className="text-base font-bold font-mono text-red-600 dark:text-red-400">
+                      {completion.rejections}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Est. Revenue Lost
+                    </p>
+                    <p className="text-base font-bold font-mono">
+                      ${(completion.estimatedRevenueLost / 100).toFixed(2)}
+                    </p>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+                {onComplete && completion && (
+                  <Button
+                    onClick={() => onComplete(completion.runId)}
+                    variant="outline"
+                    size="sm"
+                    className="mt-1"
+                  >
+                    View Dashboard
+                  </Button>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Error state */}
           {state === "error" && errorMsg && (
-            <Card className="border-red-200 dark:border-red-900">
-              <CardContent className="pt-4 pb-4">
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  Simulation failed: {errorMsg}
-                </p>
-                <Button
-                  onClick={() => setState("idle")}
-                  variant="outline"
-                  className="mt-2"
-                >
-                  Try Again
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
+              <p className="text-xs text-red-600 dark:text-red-400">
+                Simulation failed: {errorMsg}
+              </p>
+              <Button
+                onClick={() => setState("idle")}
+                variant="outline"
+                size="sm"
+                className="mt-2"
+              >
+                Try Again
+              </Button>
+            </div>
           )}
         </>
       )}
@@ -355,20 +353,20 @@ function VisitRow({ visit }: { visit: VisitEvent }) {
     visit.reasoningTrace != null && visit.reasoningTrace.length > 0;
 
   return (
-    <div className="rounded-md border border-border animate-in fade-in slide-in-from-bottom-1 duration-300">
-      <div className="flex items-start gap-3 p-3">
+    <div className={`rounded-md border animate-in fade-in slide-in-from-bottom-1 duration-300 ${visit.outcome === "purchase" ? "border-emerald-500/20 bg-emerald-500/[0.03]" : visit.outcome === "reject" ? "border-red-500/15" : "border-amber-500/15"}`}>
+      <div className="flex items-start gap-2.5 p-2.5">
         {/* Outcome badge */}
         <div className="shrink-0 pt-0.5">
           {visit.outcome === "purchase" ? (
-            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+            <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold text-[10px] border-0 h-4">
               PURCHASE
             </Badge>
           ) : visit.outcome === "reject" ? (
-            <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+            <Badge className="bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 font-semibold text-[10px] border-0 h-4">
               REJECT
             </Badge>
           ) : (
-            <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+            <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 font-semibold text-[10px] border-0 h-4">
               ERROR
             </Badge>
           )}
@@ -376,32 +374,32 @@ function VisitRow({ visit }: { visit: VisitEvent }) {
 
         {/* Content */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-xs">
             <span className="font-medium truncate">{visit.productName}</span>
-            <span className="shrink-0 text-muted-foreground">
+            <span className="shrink-0 text-muted-foreground font-mono">
               {priceFormatted}
             </span>
           </div>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <span>{visit.profileName}</span>
             {visit.reasonCode && (
               <>
-                <span>--</span>
-                <span className="font-mono text-[11px]">
+                <span className="text-foreground/20">&middot;</span>
+                <span className="font-mono text-[10px]">
                   {visit.reasonCode}
                 </span>
               </>
             )}
           </div>
           {visit.reasonSummary && (
-            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+            <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
               {visit.reasonSummary}
             </p>
           )}
           {hasTrace && (
             <button
               onClick={() => setShowTrace(!showTrace)}
-              className="mt-1.5 text-[11px] font-medium text-primary hover:underline"
+              className="mt-1 text-[10px] font-medium text-primary hover:underline"
             >
               {showTrace ? "Hide trace" : "View trace"}
             </button>
@@ -409,14 +407,14 @@ function VisitRow({ visit }: { visit: VisitEvent }) {
         </div>
 
         {/* Sequence */}
-        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+        <span className="shrink-0 text-[10px] text-muted-foreground tabular-nums font-mono">
           #{visit.sequenceNumber}
         </span>
       </div>
 
       {/* Reasoning trace panel */}
       {showTrace && hasTrace && (
-        <div className="border-t border-border bg-muted/20 px-3 py-3">
+        <div className="border-t border-border bg-muted/20 px-2.5 py-2.5">
           <ReasoningTrace
             mandate={visit.mandate}
             steps={visit.reasoningTrace!}

@@ -63,25 +63,25 @@ function CustomTooltip({
   const data = payload[0].payload;
 
   return (
-    <div className="rounded-lg border border-border bg-background px-3 py-2 shadow-md">
-      <p className="text-sm font-medium">{data.label}</p>
-      <div className="mt-1.5 space-y-0.5 text-xs">
+    <div className="rounded-md border border-border bg-card px-3 py-2 shadow-lg">
+      <p className="text-xs font-medium">{data.label}</p>
+      <div className="mt-1.5 space-y-0.5 text-[11px]">
         <p>
-          <span className="inline-block w-3 h-2 rounded-sm bg-[#94a3b8] mr-1.5" />
+          <span className="inline-block w-2.5 h-1.5 rounded-sm bg-[oklch(0.50_0.01_255)] dark:bg-[oklch(0.45_0.01_255)] mr-1.5" />
           <span className="text-muted-foreground">Before: </span>
-          <span className="font-medium">{data.before}</span>
+          <span className="font-medium font-mono">{data.before}</span>
         </p>
         <p>
-          <span className="inline-block w-3 h-2 rounded-sm bg-[#3b82f6] mr-1.5" />
+          <span className="inline-block w-2.5 h-1.5 rounded-sm bg-primary mr-1.5" />
           <span className="text-muted-foreground">After: </span>
-          <span className="font-medium">{data.after}</span>
+          <span className="font-medium font-mono">{data.after}</span>
         </p>
         <p
-          className={`font-medium ${
+          className={`font-medium font-mono ${
             data.delta < 0
-              ? "text-green-600"
+              ? "text-emerald-600 dark:text-emerald-400"
               : data.delta > 0
-              ? "text-red-600"
+              ? "text-red-600 dark:text-red-400"
               : "text-muted-foreground"
           }`}
         >
@@ -110,45 +110,43 @@ export function ComparisonBarChart({ deltas }: { deltas: ClusterDelta[] }) {
     }));
 
   return (
-    <div className="h-[300px] w-full">
+    <div className="h-[280px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
           margin={{ top: 8, right: 8, bottom: 40, left: 8 }}
         >
-          <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border, #333)" strokeOpacity={0.5} />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
             angle={-35}
             textAnchor="end"
             height={60}
-            className="fill-muted-foreground"
           />
           <YAxis
-            tick={{ fontSize: 11 }}
-            className="fill-muted-foreground"
+            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
             allowDecimals={false}
           />
           <Tooltip content={<CustomTooltip />} />
           <Legend
             verticalAlign="top"
-            height={28}
-            wrapperStyle={{ fontSize: "12px" }}
+            height={24}
+            wrapperStyle={{ fontSize: "11px" }}
           />
           <Bar
             dataKey="before"
             name="Before"
-            fill="#94a3b8"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={32}
+            fill="oklch(0.50 0.01 255)"
+            radius={[3, 3, 0, 0]}
+            maxBarSize={30}
           />
           <Bar
             dataKey="after"
             name="After"
-            fill="#3b82f6"
-            radius={[4, 4, 0, 0]}
-            maxBarSize={32}
+            fill="var(--color-primary, #0ea5e9)"
+            radius={[3, 3, 0, 0]}
+            maxBarSize={30}
           />
         </BarChart>
       </ResponsiveContainer>

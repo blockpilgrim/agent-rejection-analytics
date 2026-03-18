@@ -59,15 +59,22 @@ export interface AppliedAction {
 }
 
 // ---------------------------------------------------------------------------
-// Severity colors
+// Severity styles — left border indicator
 // ---------------------------------------------------------------------------
 
-function getSeverityColor(rank: number | null, applied: boolean): string {
-  if (applied) return "border-green-300 dark:border-green-800";
-  if (rank === 1) return "border-red-300 dark:border-red-800";
-  if (rank === 2) return "border-orange-300 dark:border-orange-800";
-  if (rank === 3) return "border-yellow-300 dark:border-yellow-800";
+function getSeverityBorder(rank: number | null, applied: boolean): string {
+  if (applied) return "border-l-[3px] border-l-emerald-500/70";
+  if (rank === 1) return "border-l-[3px] border-l-red-500/70";
+  if (rank === 2) return "border-l-[3px] border-l-orange-500/60";
+  if (rank === 3) return "border-l-[3px] border-l-amber-500/50";
   return "";
+}
+
+function getRankCircleClasses(rank: number | null): string {
+  if (rank === 1) return "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400";
+  if (rank === 2) return "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-400";
+  if (rank === 3) return "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400";
+  return "bg-muted text-muted-foreground";
 }
 
 // ---------------------------------------------------------------------------
@@ -146,24 +153,24 @@ export function ClusterCard({
     : null;
 
   return (
-    <Card className={`transition-colors ${getSeverityColor(cluster.rank, isApplied)}`}>
+    <Card className={`transition-all duration-200 ${getSeverityBorder(cluster.rank, isApplied)}`}>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               {cluster.rank != null && (
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">
+                <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-bold ${getRankCircleClasses(cluster.rank)}`}>
                   {cluster.rank}
                 </span>
               )}
               <CardTitle className="text-sm font-semibold">{label}</CardTitle>
               {isApplied && (
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px]">
+                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 text-[10px] border-0">
                   Fix Applied
                 </Badge>
               )}
             </div>
-            <p className="mt-0.5 text-xs font-mono text-muted-foreground">
+            <p className="mt-0.5 text-[11px] font-mono text-muted-foreground">
               {cluster.reasonCode}
             </p>
           </div>
@@ -174,41 +181,41 @@ export function ClusterCard({
               avgPrice={avgPrice}
               totalImpact={revenueImpact}
             >
-              <p className={`text-lg font-bold tabular-nums cursor-help ${isApplied ? "text-muted-foreground line-through" : ""}`}>
+              <p className={`text-base font-bold font-mono tabular-nums cursor-help ${isApplied ? "text-muted-foreground line-through" : ""}`}>
                 ${(revenueImpact / 100).toLocaleString("en-US", {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
                 })}
               </p>
             </RevenueTooltip>
-            <p className="text-xs text-muted-foreground">revenue impact</p>
+            <p className="text-[10px] text-muted-foreground">revenue impact</p>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2.5">
         {/* Stats row */}
-        <div className="flex flex-wrap items-center gap-3 text-sm">
+        <div className="flex flex-wrap items-center gap-2.5 text-xs">
           <span>
-            <span className="font-medium text-red-600 dark:text-red-400">
+            <span className="font-mono font-medium text-red-600 dark:text-red-400">
               {cluster.count}
             </span>{" "}
             <span className="text-muted-foreground">rejections</span>
           </span>
-          <span className="text-muted-foreground">|</span>
+          <span className="text-foreground/20">|</span>
           <span>
-            <span className="font-medium">{productIds.length}</span>{" "}
+            <span className="font-mono font-medium">{productIds.length}</span>{" "}
             <span className="text-muted-foreground">products affected</span>
           </span>
         </div>
 
         {/* Profile badges */}
         {profileIds.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {profileIds.map((pid) => {
               const profile = profileMap[pid];
               return (
-                <Badge key={pid} variant="secondary" className="text-[11px]">
+                <Badge key={pid} variant="secondary" className="text-[10px] h-4 px-1.5">
                   {profile?.name ?? pid}
                 </Badge>
               );
@@ -218,16 +225,16 @@ export function ClusterCard({
 
         {/* Recommendation + Action */}
         {cluster.recommendation && (
-          <div className={`rounded-md px-3 py-2 ${isApplied ? "bg-green-50 dark:bg-green-950/20" : "bg-muted/50"}`}>
+          <div className={`rounded-md border p-2.5 transition-colors ${isApplied ? "border-emerald-500/20 bg-emerald-500/5" : "border-border/70 bg-muted/30"}`}>
             <p className="text-xs font-semibold">
               {cluster.recommendation.action}
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 text-[11px] text-muted-foreground leading-relaxed">
               {cluster.recommendation.description}
             </p>
             {recoveryFmt && (
-              <p className="mt-1 text-xs text-green-700 dark:text-green-400">
-                Est. recovery: <span className="font-bold">{recoveryFmt}</span>
+              <p className="mt-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                Est. recovery: <span className="font-bold font-mono">{recoveryFmt}</span>
               </p>
             )}
 
@@ -246,7 +253,7 @@ export function ClusterCard({
                 />
               ) : (
                 <>
-                  <span className="text-xs text-green-700 dark:text-green-400 font-medium">
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                     Applied
                   </span>
                   <Button
@@ -254,7 +261,7 @@ export function ClusterCard({
                     variant="ghost"
                     onClick={handleUndo}
                     disabled={undoing}
-                    className="text-xs text-muted-foreground hover:text-foreground"
+                    className="text-[11px] text-muted-foreground hover:text-foreground"
                   >
                     {undoing ? "Undoing..." : "Undo"}
                   </Button>
@@ -263,7 +270,7 @@ export function ClusterCard({
             </div>
 
             {undoError && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+              <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
                 {undoError}
               </p>
             )}
@@ -273,7 +280,7 @@ export function ClusterCard({
         {/* Expand/collapse toggle */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs font-medium text-primary hover:underline"
+          className="text-[11px] font-medium text-primary hover:underline"
         >
           {expanded
             ? "Hide individual rejections"
@@ -282,7 +289,7 @@ export function ClusterCard({
 
         {/* Expanded visit list */}
         {expanded && visits.length > 0 && (
-          <div className="space-y-2 border-t border-border pt-3">
+          <div className="space-y-1.5 border-t border-border pt-2.5">
             {visits.map((visit) => (
               <ClusterVisitRow
                 key={visit.id}
@@ -315,8 +322,8 @@ function ClusterVisitRow({
 
   return (
     <div className="rounded-md border border-border text-xs">
-      <div className="flex items-start gap-3 p-2.5">
-        <Badge className="shrink-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 text-[10px]">
+      <div className="flex items-start gap-2.5 p-2">
+        <Badge className="shrink-0 bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 text-[10px] border-0 h-4">
           REJECT
         </Badge>
         <div className="min-w-0 flex-1 space-y-0.5">
@@ -325,7 +332,7 @@ function ClusterVisitRow({
               {profile?.name ?? visit.buyerProfileId}
             </span>
             {visit.productPrice != null && (
-              <span className="text-muted-foreground">
+              <span className="text-muted-foreground font-mono">
                 ${(visit.productPrice / 100).toFixed(2)}
               </span>
             )}
@@ -338,14 +345,14 @@ function ClusterVisitRow({
           {hasTrace && (
             <button
               onClick={() => setShowTrace(!showTrace)}
-              className="mt-1 text-[11px] font-medium text-primary hover:underline"
+              className="mt-0.5 text-[10px] font-medium text-primary hover:underline"
             >
               {showTrace ? "Hide trace" : "View trace"}
             </button>
           )}
         </div>
         {visit.sequenceNumber != null && (
-          <span className="shrink-0 text-muted-foreground tabular-nums">
+          <span className="shrink-0 text-muted-foreground tabular-nums font-mono">
             #{visit.sequenceNumber}
           </span>
         )}
@@ -353,7 +360,7 @@ function ClusterVisitRow({
 
       {/* Reasoning trace panel */}
       {showTrace && hasTrace && (
-        <div className="border-t border-border bg-muted/20 px-3 py-3">
+        <div className="border-t border-border bg-muted/20 px-2.5 py-2.5">
           <ReasoningTrace
             mandate={visit.mandate}
             steps={visit.reasoningTrace!}

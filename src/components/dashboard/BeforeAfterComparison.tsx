@@ -88,7 +88,7 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
     return (
       <Card>
         <CardContent className="py-8 text-center">
-          <p className="text-muted-foreground animate-pulse">
+          <p className="text-muted-foreground animate-pulse text-sm">
             Loading comparison data...
           </p>
         </CardContent>
@@ -98,7 +98,7 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
 
   if (error) {
     return (
-      <Card className="border-red-200 dark:border-red-900">
+      <Card className="border-red-500/30">
         <CardContent className="py-6 text-center">
           <p className="text-sm text-red-600 dark:text-red-400">
             Failed to load comparison: {error}
@@ -121,50 +121,50 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
   const recovered = comparison.revenueRecovered;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Header */}
       <Card
-        className={
+        className={`border-l-[3px] ${
           isImproved
-            ? "border-green-300 dark:border-green-800"
-            : "border-orange-300 dark:border-orange-800"
-        }
+            ? "border-l-emerald-500/60"
+            : "border-l-orange-500/60"
+        }`}
       >
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2">
             Before / After Comparison
             <Badge
-              className={
+              className={`text-[10px] border-0 ${
                 isImproved
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
-              }
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
+                  : "bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-400"
+              }`}
             >
               {isImproved ? "Improved" : "Regressed"}
             </Badge>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs">
             Comparing current run against the previous simulation
           </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Summary delta bar */}
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {/* Conversion rate change */}
-            <div className="rounded-md border border-border p-3">
-              <p className="text-xs text-muted-foreground">Conversion Rate</p>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-lg font-bold tabular-nums">
+            <div className="rounded-md border border-border bg-muted/30 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Conversion Rate</p>
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className="text-base font-bold font-mono tabular-nums">
                   {convBefore}%
                 </span>
-                <span className="text-muted-foreground">-&gt;</span>
-                <span className="text-lg font-bold tabular-nums">
+                <span className="text-muted-foreground text-xs">&rarr;</span>
+                <span className="text-base font-bold font-mono tabular-nums">
                   {convAfter}%
                 </span>
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-xs font-semibold font-mono ${
                     deltaPp > 0
-                      ? "text-green-600 dark:text-green-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
                       : deltaPp < 0
                       ? "text-red-600 dark:text-red-400"
                       : "text-muted-foreground"
@@ -177,14 +177,14 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
             </div>
 
             {/* Rejection change */}
-            <div className="rounded-md border border-border p-3">
-              <p className="text-xs text-muted-foreground">Rejections</p>
-              <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-lg font-bold tabular-nums">
+            <div className="rounded-md border border-border bg-muted/30 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Rejections</p>
+              <div className="mt-1 flex items-baseline gap-1.5">
+                <span className="text-base font-bold font-mono tabular-nums">
                   {comparison.beforeRun.totalRejections}
                 </span>
-                <span className="text-muted-foreground">-&gt;</span>
-                <span className="text-lg font-bold tabular-nums">
+                <span className="text-muted-foreground text-xs">&rarr;</span>
+                <span className="text-base font-bold font-mono tabular-nums">
                   {comparison.afterRun.totalRejections}
                 </span>
                 <DeltaBadge
@@ -195,13 +195,13 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
             </div>
 
             {/* Revenue recovered */}
-            <div className="rounded-md border border-border p-3">
-              <p className="text-xs text-muted-foreground">Revenue Impact</p>
+            <div className="rounded-md border border-border bg-muted/30 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Revenue Impact</p>
               <div className="mt-1">
                 <span
-                  className={`text-lg font-bold tabular-nums ${
+                  className={`text-base font-bold font-mono tabular-nums ${
                     recovered > 0
-                      ? "text-green-600 dark:text-green-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
                       : recovered < 0
                       ? "text-red-600 dark:text-red-400"
                       : ""
@@ -213,7 +213,7 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
                     maximumFractionDigits: 0,
                   })}
                 </span>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-[10px] text-muted-foreground mt-0.5">
                   {recovered > 0
                     ? "estimated revenue recovered"
                     : recovered < 0
@@ -230,10 +230,10 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
       {comparison.clusterDeltas.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
+            <CardTitle className="text-sm">
               Rejection Distribution: Before vs After
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs">
               Side-by-side comparison of rejection counts by reason code
             </CardDescription>
           </CardHeader>
@@ -247,12 +247,12 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
       {comparison.clusterDeltas.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
+            <CardTitle className="text-sm">
               Changes by Rejection Category
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {comparison.clusterDeltas.map((delta) => (
                 <ClusterDeltaRow key={delta.reasonCode} delta={delta} />
               ))}
@@ -290,21 +290,21 @@ function ClusterDeltaRow({
     REASON_CODE_LABELS[delta.reasonCode as ReasonCode] ?? delta.reasonCode;
 
   return (
-    <div className="flex items-center justify-between rounded-md border border-border p-3 text-sm">
+    <div className="flex items-center justify-between rounded-md border border-border bg-muted/20 p-2.5 text-xs transition-colors hover:bg-muted/40">
       <div className="min-w-0 flex-1">
-        <p className="font-medium truncate">{getShortLabel(delta.reasonCode)}</p>
-        <p className="text-xs text-muted-foreground truncate">{label}</p>
+        <p className="font-medium truncate text-xs">{getShortLabel(delta.reasonCode)}</p>
+        <p className="text-[10px] text-muted-foreground truncate">{label}</p>
       </div>
 
-      <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-center gap-3 shrink-0">
         {/* Count change */}
         <div className="text-right">
-          <div className="flex items-center gap-1.5">
-            <span className="tabular-nums text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <span className="tabular-nums text-muted-foreground font-mono">
               {delta.beforeCount}
             </span>
-            <span className="text-muted-foreground text-xs">-&gt;</span>
-            <span className="tabular-nums font-medium">
+            <span className="text-muted-foreground text-[10px]">&rarr;</span>
+            <span className="tabular-nums font-medium font-mono">
               {delta.afterCount}
             </span>
           </div>
@@ -312,11 +312,11 @@ function ClusterDeltaRow({
         </div>
 
         {/* Revenue change */}
-        <div className="text-right min-w-[80px]">
+        <div className="text-right min-w-[70px]">
           <span
-            className={`text-xs font-medium tabular-nums ${
+            className={`text-[11px] font-medium font-mono tabular-nums ${
               delta.revenueImpactDelta < 0
-                ? "text-green-600 dark:text-green-400"
+                ? "text-emerald-600 dark:text-emerald-400"
                 : delta.revenueImpactDelta > 0
                 ? "text-red-600 dark:text-red-400"
                 : "text-muted-foreground"
@@ -351,46 +351,36 @@ function FlippedVisitsSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Outcome Changes</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-sm">Outcome Changes</CardTitle>
+        <CardDescription className="text-xs">
           Visits where the same buyer profile evaluating the same product reached
           a different decision
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex flex-wrap gap-4 text-sm">
+      <CardContent className="space-y-2.5">
+        <div className="flex flex-wrap gap-4 text-xs">
           {improved.length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-3 w-3 rounded-full bg-green-500" />
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               <span>
-                <span className="font-bold text-green-700 dark:text-green-400">
+                <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
                   {improved.length}
                 </span>{" "}
-                agents changed from{" "}
-                <span className="font-medium text-red-600 dark:text-red-400">
-                  REJECT
-                </span>{" "}
-                to{" "}
-                <span className="font-medium text-green-600 dark:text-green-400">
-                  PURCHASE
+                <span className="text-muted-foreground">
+                  REJECT &rarr; PURCHASE
                 </span>
               </span>
             </div>
           )}
           {regressed.length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-3 w-3 rounded-full bg-red-500" />
+            <div className="flex items-center gap-1.5">
+              <span className="inline-flex h-2 w-2 rounded-full bg-red-500" />
               <span>
-                <span className="font-bold text-red-700 dark:text-red-400">
+                <span className="font-bold font-mono text-red-600 dark:text-red-400">
                   {regressed.length}
                 </span>{" "}
-                agents changed from{" "}
-                <span className="font-medium text-green-600 dark:text-green-400">
-                  PURCHASE
-                </span>{" "}
-                to{" "}
-                <span className="font-medium text-red-600 dark:text-red-400">
-                  REJECT
+                <span className="text-muted-foreground">
+                  PURCHASE &rarr; REJECT
                 </span>
               </span>
             </div>
@@ -399,7 +389,7 @@ function FlippedVisitsSection({
 
         <button
           onClick={() => setShowExamples(!showExamples)}
-          className="text-xs font-medium text-primary hover:underline"
+          className="text-[11px] font-medium text-primary hover:underline"
         >
           {showExamples
             ? "Hide examples"
@@ -407,12 +397,12 @@ function FlippedVisitsSection({
         </button>
 
         {showExamples && (
-          <div className="space-y-4 border-t border-border pt-3">
+          <div className="space-y-3 border-t border-border pt-2.5">
             {flippedVisits.slice(0, 10).map((fv, idx) => (
               <TraceComparison key={idx} flippedVisit={fv} />
             ))}
             {flippedVisits.length > 10 && (
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-[10px] text-muted-foreground text-center">
                 Showing 10 of {flippedVisits.length} outcome changes
               </p>
             )}
@@ -437,7 +427,7 @@ function DeltaBadge({
 }) {
   if (value === 0) {
     return (
-      <span className="text-xs text-muted-foreground tabular-nums">
+      <span className="text-[10px] text-muted-foreground tabular-nums font-mono">
         (no change)
       </span>
     );
@@ -450,9 +440,9 @@ function DeltaBadge({
 
   return (
     <span
-      className={`text-xs font-semibold tabular-nums ${
+      className={`text-[10px] font-semibold tabular-nums font-mono ${
         isGood
-          ? "text-green-600 dark:text-green-400"
+          ? "text-emerald-600 dark:text-emerald-400"
           : "text-red-600 dark:text-red-400"
       }`}
     >

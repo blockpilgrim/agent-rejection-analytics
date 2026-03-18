@@ -50,7 +50,7 @@ export function RevenueTooltip({
     >
       {children}
       {visible && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-border bg-background p-3 shadow-lg">
+        <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-md border border-border bg-card p-3 shadow-lg">
           <p className="text-xs font-medium text-foreground">
             Revenue Impact Calculation
           </p>

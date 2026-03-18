@@ -192,8 +192,8 @@ export function ActionPreview({
           </div>
 
           {/* Recovery estimate */}
-          <div className="rounded-md bg-green-50 dark:bg-green-950/30 px-3 py-2">
-            <p className="text-xs text-green-800 dark:text-green-300">
+          <div className="rounded-md bg-emerald-500/10 px-3 py-2">
+            <p className="text-xs text-emerald-600 dark:text-emerald-400">
               Estimated revenue recovery:{" "}
               <span className="font-bold">{recoveryFmt}</span>
             </p>
@@ -250,8 +250,8 @@ function DiffLine({
           </span>
         </div>
         <div className="flex items-start gap-1.5">
-          <span className="shrink-0 font-mono text-green-500">+</span>
-          <span className="text-green-600 dark:text-green-400">{after}</span>
+          <span className="shrink-0 font-mono text-emerald-500">+</span>
+          <span className="text-emerald-600 dark:text-emerald-400">{after}</span>
         </div>
       </div>
     </div>

@@ -53,10 +53,10 @@ export function ReasoningTrace({
           const isDecisionStep = step.step === lastStepNumber;
           const borderColor = isDecisionStep
             ? outcome === "reject"
-              ? "border-red-400 dark:border-red-600"
+              ? "border-red-500/50"
               : outcome === "purchase"
-              ? "border-green-400 dark:border-green-600"
-              : "border-yellow-400 dark:border-yellow-600"
+              ? "border-emerald-500/50"
+              : "border-amber-500/50"
             : "border-border";
 
           return (
@@ -66,10 +66,10 @@ export function ReasoningTrace({
                 className={`absolute -left-6 top-1.5 h-[11px] w-[11px] rounded-full border-2 ${
                   isDecisionStep
                     ? outcome === "reject"
-                      ? "border-red-500 bg-red-100 dark:border-red-400 dark:bg-red-900/40"
+                      ? "border-red-500 bg-red-500/15"
                       : outcome === "purchase"
-                      ? "border-green-500 bg-green-100 dark:border-green-400 dark:bg-green-900/40"
-                      : "border-yellow-500 bg-yellow-100 dark:border-yellow-400 dark:bg-yellow-900/40"
+                      ? "border-emerald-500 bg-emerald-500/15"
+                      : "border-amber-500 bg-amber-500/15"
                     : "border-muted-foreground/40 bg-background"
                 }`}
               />
@@ -88,12 +88,12 @@ export function ReasoningTrace({
                   <span className="text-xs font-medium">{step.action}</span>
                   {isDecisionStep && (
                     <span
-                      className={`ml-auto text-[10px] font-semibold uppercase ${
+                      className={`ml-auto text-[10px] font-semibold uppercase font-mono ${
                         outcome === "reject"
                           ? "text-red-600 dark:text-red-400"
                           : outcome === "purchase"
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-yellow-600 dark:text-yellow-400"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-amber-600 dark:text-amber-400"
                       }`}
                     >
                       Decision
@@ -117,7 +117,7 @@ export function ReasoningTrace({
                   <span
                     className={
                       isDecisionStep && outcome === "reject"
-                        ? "font-medium text-red-700 dark:text-red-400"
+                        ? "font-medium text-red-600 dark:text-red-400"
                         : ""
                     }
                   >
@@ -127,8 +127,8 @@ export function ReasoningTrace({
 
                 {/* Rejection constraint callout */}
                 {isDecisionStep && outcome === "reject" && reasonCode && (
-                  <div className="mt-2 rounded bg-red-50 px-2 py-1.5 dark:bg-red-950/30">
-                    <p className="text-[10px] font-semibold text-red-700 dark:text-red-400">
+                  <div className="mt-2 rounded bg-red-500/10 px-2 py-1.5">
+                    <p className="text-[10px] font-semibold text-red-600 dark:text-red-400 font-mono">
                       Blocking constraint: {reasonCode.replace(/_/g, " ")}
                     </p>
                   </div>

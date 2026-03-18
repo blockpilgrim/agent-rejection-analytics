@@ -25,8 +25,8 @@ export function TraceComparison({
     <div
       className={`rounded-md border text-sm ${
         isImproved
-          ? "border-green-200 dark:border-green-900"
-          : "border-red-200 dark:border-red-900"
+          ? "border-emerald-500/25"
+          : "border-red-500/25"
       }`}
     >
       {/* Header row */}
@@ -36,8 +36,8 @@ export function TraceComparison({
             <Badge
               className={
                 isImproved
-                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px]"
-                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 text-[10px]"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-0 text-[10px]"
+                  : "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 border-0 text-[10px]"
               }
             >
               {isImproved ? "REJECT -> PURCHASE" : "PURCHASE -> REJECT"}
@@ -70,7 +70,7 @@ export function TraceComparison({
             {/* Before trace */}
             <div className="p-3">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 text-[10px]">
+                <Badge className="bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 border-0 text-[10px]">
                   {isImproved ? "REJECT" : "PURCHASE"}
                 </Badge>
                 <span className="text-[11px] text-muted-foreground font-medium">
@@ -92,7 +92,7 @@ export function TraceComparison({
             {/* After trace */}
             <div className="p-3">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 text-[10px]">
+                <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-0 text-[10px]">
                   {isImproved ? "PURCHASE" : "REJECT"}
                 </Badge>
                 <span className="text-[11px] text-muted-foreground font-medium">
@@ -152,14 +152,14 @@ function TraceSteps({
             className={`rounded px-2 py-1.5 text-[11px] ${
               isDivergence
                 ? side === "after"
-                  ? "bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800"
-                  : "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
+                  ? "bg-emerald-500/8 border border-emerald-500/25"
+                  : "bg-red-500/8 border border-red-500/25"
                 : isAfterDivergence
                 ? "bg-muted/30"
                 : isLastStep
                 ? side === "before"
-                  ? "bg-red-50/50 dark:bg-red-950/20 border border-border"
-                  : "bg-green-50/50 dark:bg-green-950/20 border border-border"
+                  ? "bg-red-500/5 border border-border"
+                  : "bg-emerald-500/5 border border-border"
                 : ""
             }`}
           >
@@ -168,8 +168,8 @@ function TraceSteps({
                 className={`shrink-0 mt-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${
                   isDivergence
                     ? side === "after"
-                      ? "bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200"
-                      : "bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200"
+                      ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                      : "bg-red-500/20 text-red-700 dark:text-red-400"
                     : "bg-muted text-muted-foreground"
                 }`}
               >

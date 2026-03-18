@@ -190,8 +190,8 @@ export function RejectionDashboard({
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-3">
+      <div className="space-y-5">
+        <div className="grid gap-3 md:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <Card key={i}>
               <CardHeader className="pb-2">
@@ -280,62 +280,40 @@ export function RejectionDashboard({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Summary bar */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5 text-green-500" />
-              Conversion Rate
-            </CardDescription>
-            <CardTitle className="text-2xl text-green-600 dark:text-green-400">{conversionPct}%</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              {run.totalPurchases} of {totalCompleted} agents purchased
-            </p>
-          </CardContent>
-        </Card>
+    <div className="space-y-5">
+      {/* Summary KPI bar */}
+      <div className="grid gap-3 md:grid-cols-3">
+        {/* Conversion Rate */}
+        <KpiCard
+          label="Conversion Rate"
+          value={`${conversionPct}%`}
+          subtitle={`${run.totalPurchases} of ${totalCompleted} agents purchased`}
+          icon={<TrendingUp className="h-4 w-4" />}
+          accentColor="emerald"
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1.5">
-              <XCircle className="h-3.5 w-3.5 text-red-500" />
-              Total Rejections
-            </CardDescription>
-            <CardTitle className="text-2xl text-red-600 dark:text-red-400">
-              {run.totalRejections}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              {totalCompleted > 0
-                ? `${((run.totalRejections / totalCompleted) * 100).toFixed(0)}% rejection rate`
-                : "No visits completed"}
-            </p>
-          </CardContent>
-        </Card>
+        {/* Total Rejections */}
+        <KpiCard
+          label="Total Rejections"
+          value={String(run.totalRejections)}
+          subtitle={totalCompleted > 0
+            ? `${((run.totalRejections / totalCompleted) * 100).toFixed(0)}% rejection rate`
+            : "No visits completed"}
+          icon={<XCircle className="h-4 w-4" />}
+          accentColor="red"
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1.5">
-              <TrendingDown className="h-3.5 w-3.5 text-amber-500" />
-              Estimated Revenue Lost
-            </CardDescription>
-            <CardTitle className="text-2xl text-amber-600 dark:text-amber-400">
-              ${(revenueLost / 100).toLocaleString("en-US", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              Across {clusters.length} rejection categories
-            </p>
-          </CardContent>
-        </Card>
+        {/* Revenue Lost */}
+        <KpiCard
+          label="Est. Revenue Lost"
+          value={`$${(revenueLost / 100).toLocaleString("en-US", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          })}`}
+          subtitle={`Across ${clusters.length} rejection categories`}
+          icon={<TrendingDown className="h-4 w-4" />}
+          accentColor="amber"
+        />
       </div>
 
       {/* Before/After comparison — shown when this run has a previous run */}
@@ -343,51 +321,47 @@ export function RejectionDashboard({
 
       {/* Recovery summary — shown when at least one action is applied */}
       {appliedCount > 0 && (
-        <Card className="border-green-300 dark:border-green-800">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-800 dark:text-green-300">
-                  {appliedCount} fix{appliedCount !== 1 ? "es" : ""} applied
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Changes applied to your storefront
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                {onRerunSimulation && (
-                  <Button
-                    size="sm"
-                    onClick={() =>
-                      onRerunSimulation(runId, run.totalVisits)
-                    }
-                  >
-                    Re-run Simulation
-                  </Button>
-                )}
-                <div className="text-right">
-                  <p className="text-lg font-bold text-green-700 dark:text-green-400 tabular-nums">
-                    +${(totalRecovery / 100).toLocaleString("en-US", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    est. revenue recovery
-                  </p>
-                </div>
-              </div>
+        <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
+          <div>
+            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              {appliedCount} fix{appliedCount !== 1 ? "es" : ""} applied
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Changes applied to your storefront
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            {onRerunSimulation && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  onRerunSimulation(runId, run.totalVisits)
+                }
+              >
+                Re-run Simulation
+              </Button>
+            )}
+            <div className="text-right">
+              <p className="text-lg font-bold font-mono text-emerald-600 dark:text-emerald-400 tabular-nums">
+                +${(totalRecovery / 100).toLocaleString("en-US", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                est. revenue recovery
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Bar chart */}
       {chartData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Rejections by Reason Code</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-sm">Rejections by Reason Code</CardTitle>
+            <CardDescription className="text-xs">
               Distribution of rejection reasons across all agent visits
             </CardDescription>
           </CardHeader>
@@ -399,12 +373,11 @@ export function RejectionDashboard({
 
       {/* Cluster list */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold">
-          Rejection Clusters
-          <span className="ml-2 text-sm font-normal text-muted-foreground">
-            Ranked by revenue impact
-          </span>
-        </h2>
+        <div className="flex items-center gap-3">
+          <div className="h-4 w-0.5 rounded-full bg-primary" />
+          <h2 className="text-sm font-semibold">Rejection Clusters</h2>
+          <span className="text-xs text-muted-foreground">Ranked by revenue impact</span>
+        </div>
 
         {clusters.length === 0 ? (
           <Card>
@@ -428,6 +401,63 @@ export function RejectionDashboard({
             />
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// KPI Card
+// ---------------------------------------------------------------------------
+
+const ACCENT_STYLES = {
+  emerald: {
+    value: "text-emerald-600 dark:text-emerald-400",
+    icon: "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400",
+    border: "border-l-emerald-500/60",
+  },
+  red: {
+    value: "text-red-600 dark:text-red-400",
+    icon: "bg-red-500/10 text-red-500 dark:text-red-400",
+    border: "border-l-red-500/60",
+  },
+  amber: {
+    value: "text-amber-600 dark:text-amber-400",
+    icon: "bg-amber-500/10 text-amber-500 dark:text-amber-400",
+    border: "border-l-amber-500/60",
+  },
+} as const;
+
+function KpiCard({
+  label,
+  value,
+  subtitle,
+  icon,
+  accentColor,
+}: {
+  label: string;
+  value: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  accentColor: keyof typeof ACCENT_STYLES;
+}) {
+  const accent = ACCENT_STYLES[accentColor];
+
+  return (
+    <div className={`rounded-lg bg-card p-4 ring-1 ring-foreground/[0.06] border-l-[3px] ${accent.border}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+          <p className={`mt-1 text-2xl font-bold font-mono tabular-nums ${accent.value}`}>
+            {value}
+          </p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {subtitle}
+          </p>
+        </div>
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${accent.icon}`}>
+          {icon}
+        </div>
       </div>
     </div>
   );
