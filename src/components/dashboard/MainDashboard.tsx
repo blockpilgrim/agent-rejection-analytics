@@ -4,11 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BuyerProfileCards } from "@/components/simulation/buyer-profile-cards";
 import { SimulationConfig } from "@/components/simulation/simulation-config";
 import { RejectionDashboard } from "@/components/dashboard/RejectionDashboard";
