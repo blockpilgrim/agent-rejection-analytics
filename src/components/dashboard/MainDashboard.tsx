@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -43,6 +43,16 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
     previousRunId: string;
     visitCount: number;
   } | null>(null);
+
+  const prevTabRef = useRef(activeTab);
+
+  // Scroll to top when switching to dashboard tab
+  useEffect(() => {
+    if (activeTab === "dashboard" && prevTabRef.current !== "dashboard") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    prevTabRef.current = activeTab;
+  }, [activeTab]);
 
   function handleSimulationComplete(runId: string) {
     setCompletedRunId(runId);

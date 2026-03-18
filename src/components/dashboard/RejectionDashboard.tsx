@@ -319,43 +319,6 @@ export function RejectionDashboard({
       {/* Before/After comparison — shown when this run has a previous run */}
       <BeforeAfterComparison runId={runId} />
 
-      {/* Recovery summary — shown when at least one action is applied */}
-      {appliedCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
-          <div>
-            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-              {appliedCount} fix{appliedCount !== 1 ? "es" : ""} applied
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Changes applied to your storefront
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            {onRerunSimulation && (
-              <Button
-                size="sm"
-                onClick={() =>
-                  onRerunSimulation(runId, run.totalVisits)
-                }
-              >
-                Re-run Simulation
-              </Button>
-            )}
-            <div className="text-right">
-              <p className="text-lg font-bold font-mono text-emerald-600 dark:text-emerald-400 tabular-nums">
-                +${(totalRecovery / 100).toLocaleString("en-US", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                })}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                est. revenue recovery
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Bar chart */}
       {chartData.length > 0 && (
         <Card>
@@ -402,6 +365,43 @@ export function RejectionDashboard({
           ))
         )}
       </div>
+
+      {/* Recovery summary + Re-run CTA — placed after clusters so it's the natural next step */}
+      {appliedCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
+          <div>
+            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              {appliedCount} fix{appliedCount !== 1 ? "es" : ""} applied
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Changes applied to your storefront
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            {onRerunSimulation && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  onRerunSimulation(runId, run.totalVisits)
+                }
+              >
+                Re-run Simulation
+              </Button>
+            )}
+            <div className="text-right">
+              <p className="text-lg font-bold font-mono text-emerald-600 dark:text-emerald-400 tabular-nums">
+                +${(totalRecovery / 100).toLocaleString("en-US", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                est. revenue recovery
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

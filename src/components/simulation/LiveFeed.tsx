@@ -182,10 +182,14 @@ export function LiveFeed({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-scroll to bottom as new visits arrive
+  // Auto-scroll only if user is already near the bottom (don't hijack scroll)
   useEffect(() => {
-    if (feedRef.current) {
-      feedRef.current.scrollTop = feedRef.current.scrollHeight;
+    const el = feedRef.current;
+    if (!el) return;
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    // Only auto-scroll if within 80px of bottom (user hasn't scrolled up to browse)
+    if (distFromBottom < 80) {
+      el.scrollTop = el.scrollHeight;
     }
   }, [visits.length]);
 
@@ -245,14 +249,20 @@ export function LiveFeed({
           </Card>
 
           {/* Visit feed */}
-          <Card>
+          <Card className={state === "running" ? "ring-1 ring-primary/20" : ""}>
             <CardHeader className="pb-1.5">
-              <CardTitle className="text-xs font-semibold">
+              <CardTitle className="text-xs font-semibold flex items-center gap-2">
                 {state === "running"
                   ? "Live Feed"
                   : state === "completed"
                   ? "Simulation Results"
                   : "Simulation Error"}
+                {state === "running" && (
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-primary">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+                    Simulation in progress...
+                  </span>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -309,11 +319,11 @@ export function LiveFeed({
                 {onComplete && completion && (
                   <Button
                     onClick={() => onComplete(completion.runId)}
-                    variant="outline"
-                    size="sm"
-                    className="mt-1"
+                    size="default"
+                    className="mt-3 gap-2 shadow-md"
                   >
                     View Dashboard
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                   </Button>
                 )}
               </div>
@@ -355,18 +365,18 @@ function VisitRow({ visit }: { visit: VisitEvent }) {
   return (
     <div className={`rounded-md border animate-in fade-in slide-in-from-bottom-1 duration-300 ${visit.outcome === "purchase" ? "border-emerald-500/20 bg-emerald-500/[0.03]" : visit.outcome === "reject" ? "border-red-500/15" : "border-amber-500/15"}`}>
       <div className="flex items-start gap-2.5 p-2.5">
-        {/* Outcome badge */}
-        <div className="shrink-0 pt-0.5">
+        {/* Outcome badge — fixed width so text content aligns across rows */}
+        <div className="shrink-0 pt-0.5 w-[62px]">
           {visit.outcome === "purchase" ? (
-            <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold text-[10px] border-0 h-4">
+            <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold text-[10px] border-0 h-4 w-full justify-center">
               PURCHASE
             </Badge>
           ) : visit.outcome === "reject" ? (
-            <Badge className="bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 font-semibold text-[10px] border-0 h-4">
+            <Badge className="bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 font-semibold text-[10px] border-0 h-4 w-full justify-center">
               REJECT
             </Badge>
           ) : (
-            <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 font-semibold text-[10px] border-0 h-4">
+            <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 font-semibold text-[10px] border-0 h-4 w-full justify-center">
               ERROR
             </Badge>
           )}

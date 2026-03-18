@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -30,6 +30,15 @@ export function SimulationConfig({
   const [simKey, setSimKey] = useState(0); // force LiveFeed remount on new sim
   const [previousRunId, setPreviousRunId] = useState<string | null>(null);
   const lastRerunRef = useRef<string | null>(null);
+  const liveFeedRef = useRef<HTMLDivElement>(null);
+
+  // Scroll the LiveFeed area into view when simulation starts
+  const scrollToFeed = useCallback(() => {
+    // Small delay so the LiveFeed has time to mount
+    requestAnimationFrame(() => {
+      liveFeedRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
 
   // Auto-start when rerunConfig changes
   useEffect(() => {
@@ -41,6 +50,13 @@ export function SimulationConfig({
       setSimKey((k) => k + 1);
     }
   }, [rerunConfig]);
+
+  // Scroll to feed when simulation starts
+  useEffect(() => {
+    if (isSimulating) {
+      scrollToFeed();
+    }
+  }, [isSimulating, simKey, scrollToFeed]);
 
   function handleStartSimulation() {
     setPreviousRunId(null);
@@ -122,14 +138,16 @@ export function SimulationConfig({
         </CardContent>
       </Card>
 
-      {isSimulating && (
-        <LiveFeed
-          key={simKey}
-          visitCount={visitCount}
-          previousRunId={previousRunId ?? undefined}
-          onComplete={handleComplete}
-        />
-      )}
+      <div ref={liveFeedRef}>
+        {isSimulating && (
+          <LiveFeed
+            key={simKey}
+            visitCount={visitCount}
+            previousRunId={previousRunId ?? undefined}
+            onComplete={handleComplete}
+          />
+        )}
+      </div>
     </div>
   );
 }
