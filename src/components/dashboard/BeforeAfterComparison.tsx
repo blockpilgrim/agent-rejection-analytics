@@ -76,6 +76,14 @@ export function BeforeAfterComparison({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // If we have client-side data with no previous run, there's nothing to
+    // compare — skip the API call entirely.
+    if (currentData && !currentData.run.previousRunId) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
+
     // Client-side path: both runs' data are already in state from the SSE
     // streams, so compute the comparison without a network round-trip.
     // This avoids the Vercel cross-instance /tmp isolation problem entirely.
