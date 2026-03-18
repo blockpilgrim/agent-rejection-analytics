@@ -87,15 +87,19 @@ interface DashboardData {
 // Main component
 // ---------------------------------------------------------------------------
 
+export type { DashboardData };
+
 export function RejectionDashboard({
   runId,
+  initialData,
   onRerunSimulation,
 }: {
   runId: string;
+  initialData?: DashboardData;
   onRerunSimulation?: (previousRunId: string, visitCount: number) => void;
 }) {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<DashboardData | null>(initialData ?? null);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
 
   // Track applied actions: clusterId -> AppliedAction
@@ -104,6 +108,11 @@ export function RejectionDashboard({
   >({});
 
   useEffect(() => {
+    // If data was passed in directly (e.g. bundled with the SSE complete event),
+    // skip the network calls entirely — this is the happy path on Vercel where
+    // /tmp is ephemeral and subsequent requests may hit different instances.
+    if (initialData) return;
+
     let cancelled = false;
 
     async function loadDashboard() {

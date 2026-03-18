@@ -49,6 +49,7 @@ interface CompletionData {
   errors: number;
   conversionRate: number;
   estimatedRevenueLost: number;
+  dashboardData?: unknown;
 }
 
 type SimulationState = "idle" | "running" | "completed" | "error";
@@ -64,7 +65,7 @@ export function LiveFeed({
 }: {
   visitCount: number;
   previousRunId?: string;
-  onComplete?: (runId: string) => void;
+  onComplete?: (runId: string, dashboardData?: unknown) => void;
 }) {
   const [state, setState] = useState<SimulationState>("idle");
   const [visits, setVisits] = useState<VisitEvent[]>([]);
@@ -318,7 +319,7 @@ export function LiveFeed({
                 </div>
                 {onComplete && completion && (
                   <Button
-                    onClick={() => onComplete(completion.runId)}
+                    onClick={() => onComplete(completion.runId, completion.dashboardData)}
                     size="default"
                     className="mt-3 gap-2 shadow-md"
                   >

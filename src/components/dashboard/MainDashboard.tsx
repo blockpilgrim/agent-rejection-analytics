@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { BuyerProfileCards } from "@/components/simulation/buyer-profile-cards";
 import { SimulationConfig } from "@/components/simulation/simulation-config";
-import { RejectionDashboard } from "@/components/dashboard/RejectionDashboard";
+import { RejectionDashboard, type DashboardData } from "@/components/dashboard/RejectionDashboard";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -32,6 +32,7 @@ type ActiveTab = "simulation" | "dashboard";
 export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("simulation");
   const [completedRunId, setCompletedRunId] = useState<string | null>(null);
+  const [completedDashboardData, setCompletedDashboardData] = useState<DashboardData | null>(null);
 
   // Re-run state: when user clicks "Re-run Simulation" from the dashboard,
   // we pass these to SimulationConfig to auto-start with the right params
@@ -50,8 +51,9 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
     prevTabRef.current = activeTab;
   }, [activeTab]);
 
-  function handleSimulationComplete(runId: string) {
+  function handleSimulationComplete(runId: string, dashboardData?: unknown) {
     setCompletedRunId(runId);
+    setCompletedDashboardData((dashboardData as DashboardData) ?? null);
     setActiveTab("dashboard");
     // Clear re-run config after completion
     setRerunConfig(null);
@@ -134,7 +136,9 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
 
       {activeTab === "dashboard" && completedRunId && (
         <RejectionDashboard
+          key={completedRunId}
           runId={completedRunId}
+          initialData={completedDashboardData ?? undefined}
           onRerunSimulation={handleRerunSimulation}
         />
       )}

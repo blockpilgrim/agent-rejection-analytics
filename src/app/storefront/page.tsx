@@ -1,5 +1,7 @@
 import { getStorefront, getProductsByStorefront } from "@/db/queries";
 import { Badge } from "@/components/ui/badge";
+
+export const dynamic = "force-dynamic";
 import {
   Card,
   CardContent,

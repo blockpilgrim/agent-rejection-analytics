@@ -22,7 +22,7 @@ export function SimulationConfig({
   onSimulationComplete,
   rerunConfig,
 }: {
-  onSimulationComplete?: (runId: string) => void;
+  onSimulationComplete?: (runId: string, dashboardData?: unknown) => void;
   rerunConfig?: RerunConfig | null;
 }) {
   const [visitCount, setVisitCount] = useState<number>(25);
@@ -64,9 +64,9 @@ export function SimulationConfig({
     setSimKey((k) => k + 1);
   }
 
-  function handleComplete(runId: string) {
+  function handleComplete(runId: string, dashboardData?: unknown) {
     if (onSimulationComplete) {
-      onSimulationComplete(runId);
+      onSimulationComplete(runId, dashboardData);
     }
   }
 

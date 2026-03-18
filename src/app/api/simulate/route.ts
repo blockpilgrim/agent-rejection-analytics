@@ -9,7 +9,11 @@ import {
   updateSimulationRunTotals,
   insertAgentVisit,
   getLatestCompletedSimulationRun,
+  getSimulationRun,
+  getRejectionClustersByRun,
+  getAgentVisitsByRun,
 } from "@/db/queries";
+import { aggregateSimulationResults } from "@/lib/simulation/aggregator";
 import {
   runSimulation,
   type ProfileInfo,
@@ -230,6 +234,24 @@ export async function POST(request: NextRequest) {
           console.error("Failed to update simulation run totals:", dbErr);
         }
 
+        // Run aggregation in-process so dashboard data is available without a
+        // separate API call. On Vercel, /tmp is per-instance so subsequent
+        // requests could land on a different instance with an empty DB.
+        let dashboardData = null;
+        try {
+          aggregateSimulationResults(runId);
+          const run = getSimulationRun(runId);
+          const clusters = getRejectionClustersByRun(runId);
+          const visits = getAgentVisitsByRun(runId);
+          const profileMap: Record<string, { name: string; primaryConstraint: string }> = {};
+          for (const p of rawProfiles) {
+            profileMap[p.id] = { name: p.name, primaryConstraint: p.primaryConstraint };
+          }
+          dashboardData = { run, clusters, visits, profileMap };
+        } catch (aggErr) {
+          console.error("Failed to pre-aggregate dashboard data:", aggErr);
+        }
+
         // Send completion event
         controller.enqueue(
           encoder.encode(
@@ -241,6 +263,7 @@ export async function POST(request: NextRequest) {
               errors,
               conversionRate: Math.round(conversionRate * 10000) / 10000,
               estimatedRevenueLost: revenueLost,
+              dashboardData,
             })}\n\n`
           )
         );
