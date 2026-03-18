@@ -9,12 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { REASON_CODE_LABELS, type ReasonCode } from "@/lib/types";
+import { REASON_CODE_LABELS, type ReasonCode, type ReasoningStep } from "@/lib/types";
 import { ComparisonBarChart } from "@/components/dashboard/ComparisonBarChart";
 import { TraceComparison } from "@/components/dashboard/TraceComparison";
-import type {
-  ComparisonResult,
-  FlippedVisit,
+import {
+  compareRuns,
+  type ComparisonResult,
+  type FlippedVisit,
 } from "@/lib/simulation/comparator";
 
 // ---------------------------------------------------------------------------
@@ -27,16 +28,71 @@ interface ComparisonAPIResponse {
   previousRunId: string;
 }
 
+// Minimal interface for client-side comparison (structurally compatible with
+// DashboardData — avoids circular import with RejectionDashboard).
+interface RunSnapshot {
+  run: {
+    id: string;
+    totalVisits: number;
+    totalPurchases: number;
+    totalRejections: number;
+    overallConversionRate: number | null;
+    estimatedRevenueLost: number | null;
+    previousRunId?: string | null;
+  };
+  clusters: Array<{
+    reasonCode: string;
+    count: number;
+    estimatedRevenueImpact: number | null;
+  }>;
+  visits: Array<{
+    id: string;
+    buyerProfileId: string;
+    productId: string;
+    outcome: string;
+    reasonCode: string | null;
+    reasonSummary: string | null;
+    reasoningTrace: ReasoningStep[] | null;
+    productPrice: number | null;
+    mandate: string | null;
+  }>;
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
-export function BeforeAfterComparison({ runId }: { runId: string }) {
+export function BeforeAfterComparison({
+  runId,
+  currentData,
+  previousData,
+}: {
+  runId: string;
+  currentData?: RunSnapshot | null;
+  previousData?: RunSnapshot | null;
+}) {
   const [data, setData] = useState<ComparisonAPIResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Client-side path: both runs' data are already in state from the SSE
+    // streams, so compute the comparison without a network round-trip.
+    // This avoids the Vercel cross-instance /tmp isolation problem entirely.
+    if (currentData && previousData && currentData.run.previousRunId) {
+      const comparison = compareRuns(
+        { id: previousData.run.id, totalVisits: previousData.run.totalVisits, totalPurchases: previousData.run.totalPurchases, totalRejections: previousData.run.totalRejections, overallConversionRate: previousData.run.overallConversionRate, estimatedRevenueLost: previousData.run.estimatedRevenueLost },
+        { id: currentData.run.id, totalVisits: currentData.run.totalVisits, totalPurchases: currentData.run.totalPurchases, totalRejections: currentData.run.totalRejections, overallConversionRate: currentData.run.overallConversionRate, estimatedRevenueLost: currentData.run.estimatedRevenueLost },
+        previousData.clusters.map((c) => ({ reasonCode: c.reasonCode, count: c.count, estimatedRevenueImpact: c.estimatedRevenueImpact ?? 0 })),
+        currentData.clusters.map((c) => ({ reasonCode: c.reasonCode, count: c.count, estimatedRevenueImpact: c.estimatedRevenueImpact ?? 0 })),
+        previousData.visits.map((v) => ({ id: v.id, buyerProfileId: v.buyerProfileId, productId: v.productId, outcome: v.outcome, reasonCode: v.reasonCode, reasonSummary: v.reasonSummary, reasoningTrace: v.reasoningTrace ?? null, productPrice: v.productPrice, mandate: v.mandate })),
+        currentData.visits.map((v) => ({ id: v.id, buyerProfileId: v.buyerProfileId, productId: v.productId, outcome: v.outcome, reasonCode: v.reasonCode, reasonSummary: v.reasonSummary, reasoningTrace: v.reasoningTrace ?? null, productPrice: v.productPrice, mandate: v.mandate }))
+      );
+      setData({ comparison, hasPrevious: true, previousRunId: previousData.run.id });
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function loadComparison() {
@@ -82,7 +138,7 @@ export function BeforeAfterComparison({ runId }: { runId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [runId]);
+  }, [runId, currentData, previousData]);
 
   if (loading) {
     return (

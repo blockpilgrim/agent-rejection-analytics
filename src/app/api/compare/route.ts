@@ -26,8 +26,10 @@ export async function GET(request: NextRequest) {
 
   const currentRun = getSimulationRun(runId);
   if (!currentRun) {
+    // On Vercel, /tmp is per-instance so this run may exist on a different
+    // instance. Treat as "no previous run" so the UI hides gracefully.
     return NextResponse.json(
-      { error: `Simulation run ${runId} not found` },
+      { error: `Simulation run ${runId} not found`, hasPrevious: false },
       { status: 404 }
     );
   }

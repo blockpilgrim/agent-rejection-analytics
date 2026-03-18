@@ -30,6 +30,7 @@ interface SimulationRun {
   overallConversionRate: number | null;
   estimatedRevenueLost: number | null;
   status: string;
+  previousRunId: string | null;
 }
 
 interface RejectionCluster {
@@ -92,10 +93,12 @@ export type { DashboardData };
 export function RejectionDashboard({
   runId,
   initialData,
+  previousDashboardData,
   onRerunSimulation,
 }: {
   runId: string;
   initialData?: DashboardData;
+  previousDashboardData?: DashboardData;
   onRerunSimulation?: (previousRunId: string, visitCount: number) => void;
 }) {
   const [data, setData] = useState<DashboardData | null>(initialData ?? null);
@@ -326,7 +329,11 @@ export function RejectionDashboard({
       </div>
 
       {/* Before/After comparison — shown when this run has a previous run */}
-      <BeforeAfterComparison runId={runId} />
+      <BeforeAfterComparison
+        runId={runId}
+        currentData={data}
+        previousData={previousDashboardData}
+      />
 
       {/* Bar chart */}
       {chartData.length > 0 && (

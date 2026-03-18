@@ -33,6 +33,7 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("simulation");
   const [completedRunId, setCompletedRunId] = useState<string | null>(null);
   const [completedDashboardData, setCompletedDashboardData] = useState<DashboardData | null>(null);
+  const [previousDashboardData, setPreviousDashboardData] = useState<DashboardData | null>(null);
 
   // Re-run state: when user clicks "Re-run Simulation" from the dashboard,
   // we pass these to SimulationConfig to auto-start with the right params
@@ -52,6 +53,8 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
   }, [activeTab]);
 
   function handleSimulationComplete(runId: string, dashboardData?: unknown) {
+    // Rotate: current → previous, new → current
+    setPreviousDashboardData(completedDashboardData);
     setCompletedRunId(runId);
     setCompletedDashboardData((dashboardData as DashboardData) ?? null);
     setActiveTab("dashboard");
@@ -139,6 +142,7 @@ export function MainDashboard({ profiles }: { profiles: BuyerProfile[] }) {
           key={completedRunId}
           runId={completedRunId}
           initialData={completedDashboardData ?? undefined}
+          previousDashboardData={previousDashboardData ?? undefined}
           onRerunSimulation={handleRerunSimulation}
         />
       )}
