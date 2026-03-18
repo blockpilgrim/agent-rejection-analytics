@@ -1,4 +1,6 @@
 import { NextRequest } from "next/server";
+
+export const maxDuration = 60;
 import {
   getStorefront,
   getProductsByStorefront,

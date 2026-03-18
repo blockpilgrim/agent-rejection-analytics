@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { LiveFeed } from "@/components/simulation/LiveFeed";
 
-const VISIT_OPTIONS = [25, 50, 100, 200] as const;
+const VISIT_OPTIONS = [10, 25, 50] as const;
 
 interface RerunConfig {
   previousRunId: string;
