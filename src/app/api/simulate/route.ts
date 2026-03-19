@@ -20,6 +20,14 @@ import {
   type VisitResult,
 } from "@/lib/simulation/orchestrator";
 import type { StorefrontContext, ProductData } from "@/lib/simulation/agent-caller";
+import {
+  checkIpRateLimit,
+  recordIpSimulation,
+  checkGlobalBudget,
+  acquireSimulationLock,
+  releaseSimulationLock,
+  LIMITS,
+} from "@/lib/rate-limit";
 
 // ---------------------------------------------------------------------------
 // POST /api/simulate — start a simulation and stream results via SSE
@@ -37,19 +45,64 @@ export async function POST(request: NextRequest) {
   }
 
   const storefrontId = body.storefrontId ?? "sf_001";
-  const visitCount = body.visitCount ?? 100;
+  const visitCount = body.visitCount ?? 25;
 
-  // Validate
-  if (visitCount < 1 || visitCount > 500) {
+  // Validate visit count (capped for public demo)
+  if (visitCount < 1 || visitCount > LIMITS.maxVisitCount) {
     return new Response(
-      JSON.stringify({ error: "visitCount must be between 1 and 500" }),
+      JSON.stringify({ error: `visitCount must be between 1 and ${LIMITS.maxVisitCount}` }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
+  // --- Rate limiting ---
+
+  // Extract client IP
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+
+  // Per-IP rate limit
+  const ipCheck = checkIpRateLimit(ip);
+  if (!ipCheck.allowed) {
+    const retryMinutes = Math.ceil((ipCheck.retryAfterMs ?? 60_000) / 60_000);
+    return new Response(
+      JSON.stringify({
+        error: `Rate limit exceeded. You can run ${LIMITS.maxSimulationsPerIp} simulations per ${LIMITS.ipWindowMinutes} minutes. Try again in ~${retryMinutes} min.`,
+      }),
+      { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(Math.ceil((ipCheck.retryAfterMs ?? 60_000) / 1000)) } }
+    );
+  }
+
+  // Global API call budget
+  const budgetCheck = checkGlobalBudget(visitCount);
+  if (!budgetCheck.allowed) {
+    return new Response(
+      JSON.stringify({
+        error: "This demo has reached its hourly API budget. Please try again later.",
+      }),
+      { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(Math.ceil((budgetCheck.retryAfterMs ?? 60_000) / 1000)) } }
+    );
+  }
+
+  // Concurrent simulation lock (one at a time per instance)
+  if (!acquireSimulationLock()) {
+    return new Response(
+      JSON.stringify({
+        error: "Another simulation is currently running. Please wait a moment and try again.",
+      }),
+      { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "10" } }
+    );
+  }
+
+  // Record this simulation against the IP's rate limit
+  recordIpSimulation(ip);
+
   // Load storefront + products + profiles
   const storefront = getStorefront(storefrontId);
   if (!storefront) {
+    releaseSimulationLock();
     return new Response(
       JSON.stringify({ error: `Storefront ${storefrontId} not found` }),
       { status: 404, headers: { "Content-Type": "application/json" } }
@@ -58,6 +111,7 @@ export async function POST(request: NextRequest) {
 
   const rawProducts = getProductsByStorefront(storefrontId);
   if (rawProducts.length === 0) {
+    releaseSimulationLock();
     return new Response(
       JSON.stringify({ error: "No products found for storefront" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
@@ -66,6 +120,7 @@ export async function POST(request: NextRequest) {
 
   const rawProfiles = getAllBuyerProfiles();
   if (rawProfiles.length === 0) {
+    releaseSimulationLock();
     return new Response(
       JSON.stringify({ error: "No buyer profiles found. Run db:seed first." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
@@ -289,6 +344,7 @@ export async function POST(request: NextRequest) {
           )
         );
       } finally {
+        releaseSimulationLock();
         controller.close();
       }
     },

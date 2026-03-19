@@ -3,6 +3,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { PROFILE_PROMPTS } from "@/lib/prompts";
 import type { AgentDecision, ReasonCode } from "@/lib/types";
+import { recordApiCall } from "@/lib/rate-limit";
 
 // ---------------------------------------------------------------------------
 // Zod schema for structured output
@@ -185,6 +186,7 @@ async function callOnce(input: CallAgentInput): Promise<AgentDecision> {
 
   const userPrompt = buildUserPrompt(input);
 
+  recordApiCall();
   const { object } = await generateObject({
     model: anthropic("claude-sonnet-4-20250514"),
     schema: agentDecisionSchema,

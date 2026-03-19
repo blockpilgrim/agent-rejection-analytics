@@ -111,7 +111,15 @@ export function LiveFeed({
 
       if (!response.ok || !response.body) {
         const text = await response.text();
-        throw new Error(text || `HTTP ${response.status}`);
+        // Parse JSON error messages from rate limiting / validation
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed.error) errorMessage = parsed.error;
+        } catch {
+          if (text) errorMessage = text;
+        }
+        throw new Error(errorMessage);
       }
 
       const reader = response.body.getReader();
